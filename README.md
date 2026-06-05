@@ -22,9 +22,11 @@
 
 ## Database Tables
 
-- Table `users` - contains xx yy zz
-- Table `something` - contains ww qq ss
-- ...
+- Table `station` - id, name
+- Table `connection` - line, station1, station2
+- Table `events` - id, name, coins
+- Table `rank` - userId, coins
+- Table `users` - id, name, surname, mail, hash, salt
 
 ## Main React Components
 
