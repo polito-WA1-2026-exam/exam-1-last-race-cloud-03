@@ -1,23 +1,62 @@
-GET http://localhost:3001/api/courses
 
 ###
 
-POST http://localhost:3001/api/plan
+POST http://localhost:3001/api/game/start
 content-type: application/json
 
 {
-  "plan": "part",
-  "courses": ["01NYHOV","01OTWOV", "01TXSOV", "01SQMOV", "01TXYOV"]
+
+}
+
+###  giusta
+
+POST http://localhost:3001/api/game/end
+content-type: application/json
+
+{
+  "gameId": 2,
+  "route": [
+    { "station_from_id": 1, "station_to_id": 2 },
+    { "station_from_id": 2, "station_to_id": 3 },
+    { "station_from_id": 3, "station_to_id": 4 }
+  ]
+}
+
+
+###  sbagliata
+
+POST http://localhost:3001/api/game/end
+content-type: application/json
+
+{
+  "gameId": 105,
+  "route": [1, 2, 3, 5]
+}
+
+
+###  giusta
+
+POST http://localhost:3001/api/game/end
+content-type: application/json
+
+{
+  "gameId": 2,
+  "route": [
+    { "station_from_id": 1, "station_to_id": 2 },
+    { "station_from_id": 2, "station_to_id": 3 },
+    { "station_from_id": 3, "station_to_id": 4 }
+  ]
 }
 
 ###
 
-GET http://localhost:3001/api/plan
+GET http://localhost:3001/api/stations
 content-type: application/json
+
 
 ###
 
-DELETE http://localhost:3001/api/plan
+GET http://localhost:3001/api/rank
 content-type: application/json
 
 ###
