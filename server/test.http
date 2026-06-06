@@ -1,0 +1,73 @@
+GET http://localhost:3001/api/courses
+
+###
+
+POST http://localhost:3001/api/plan
+content-type: application/json
+
+{
+  "plan": "part",
+  "courses": ["01NYHOV","01OTWOV", "01TXSOV", "01SQMOV", "01TXYOV"]
+}
+
+###
+
+GET http://localhost:3001/api/plan
+content-type: application/json
+
+###
+
+DELETE http://localhost:3001/api/plan
+content-type: application/json
+
+###
+
+POST http://localhost:3001/api/sessions
+content-type: application/json
+
+{
+  "username": "mario.rossi@test.com",
+  "password": "password123" 
+}
+
+###
+
+POST http://localhost:3001/api/sessions
+content-type: application/json
+
+{
+  "username": "giulia.bianchi@test.it",
+  "password": "secret2026" 
+}
+
+
+###
+
+POST http://localhost:3001/api/sessions
+content-type: application/json
+
+{
+  "username": "l.verdi@test.com",
+  "password": "metro_fan" 
+}
+
+
+###
+
+POST http://localhost:3001/api/sessions
+content-type: application/json
+
+{
+  "username": "e.ferrari@lastrace.net",
+  "password": "speedy99" 
+}
+
+
+###
+
+DELETE http://localhost:3001/api/sessions/current
+
+
+###
+
+GET http://localhost:3001/api/sessions/current

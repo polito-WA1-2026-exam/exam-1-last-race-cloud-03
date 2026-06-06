@@ -6,6 +6,10 @@ import cors from 'cors'; // CORS middleware
 
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
+import UserDao from "./dao-users.js";
+
+const userDao = new UserDao();
+
 
 // init express
 const app = new express();
@@ -13,6 +17,15 @@ app.use(morgan('dev'));
 app.use(express.json());
 const port = 3001;
 
+let MAIN_GRAPH = {};
+
+async function initializeServer() {
+    console.log("Caricamento della rete metropolitana dal DB...");
+    
+    // Costruiamo il grafo una volta sola
+    //MAIN_GRAPH = buildGraph(segments); 
+    console.log("Rete metropolitana caricata in memoria con successo!");
+}
 
 ////PASSPORT THINGS
 passport.use(new LocalStrategy(async function verify(username, password, callback) {
@@ -61,17 +74,17 @@ app.post('/api/sessions', function(req, res, next) {
   passport.authenticate('local', (err, user, info) => {
     if (err)
       return next(err);
-      if (!user) {
-        // display wrong login messages
-        return res.status(401).json({ error: info});
-      }
-      // success, perform the login and extablish a login session
-      req.login(user, (err) => {
-        if (err)
-          return next(err);
-        // req.user contains the authenticated user, we send all the user info back
-        // this is coming from userDao.getUserByCredentials() in LocalStratecy Verify Function
-        return res.json(req.user);
+    if (!user) {
+      // display wrong login messages
+      return res.status(401).json({ error: info});
+    }
+    // success, perform the login and extablish a login session
+    req.login(user, (err) => {
+      if (err)
+        return next(err);
+      // req.user contains the authenticated user, we send all the user info back
+      // this is coming from userDao.getUserByCredentials() in LocalStratecy Verify Function
+      return res.json(req.user);
       });
   })(req, res, next);
 });
@@ -94,9 +107,43 @@ app.delete('/api/sessions/current', (req, res) => {
 });
 
 
+/*** lines APIs ***/
+app.post('/api/game/start', async (req, res) => {
+    const userId = req.user.id; // Preso dalla sessione/token del giocatore registrato
+
+    // Usiamo METRO_GRAPH che è già in memoria, senza fare query di lettura al DB!
+    const allStationIds = Object.keys(METRO_GRAPH);
+    let startStationId;
+    let validDestinations = [];
+
+    while (validDestinations.length === 0) {
+        startStationId = allStationIds[Math.floor(Math.random() * allStationIds.length)];
+        const distances = getDistancesFromStart(startStationId, METRO_GRAPH); // Algoritmo BFS
+        validDestinations = Object.keys(distances).filter(id => distances[id] >= 3);
+    }
+
+    const destinationStationId = validDestinations[Math.floor(Math.random() * validDestinations.length)];
+
+    // Scriviamo la nuova partita nel DB per renderla persistente e sicura
+    const newGame = await db.query(
+        `INSERT INTO games (user_id, start_station_id, destination_station_id, status) 
+         VALUES ($1, $2, $3, 'PLANNING') RETURNING id`,
+        [userId, startStationId, destinationStationId]
+    );
+
+    // Rispondiamo al client con i dati per iniziare la fase di Planning
+    res.json({
+        gameId: newGame.rows[0].id,
+        startStationId: parseInt(startStationId),
+        destinationStationId: parseInt(destinationStationId)
+    });
+});
+
+
 
 // activate the server
-app.listen(port, () => {
+app.listen(port, async () => {
+  await initializeServer();
   console.log(`Server listening at http://localhost:${port}`);
 });
 

@@ -8,17 +8,25 @@
 - ...
 
 ## API Server
+User api
+- POST /api/sessions
+- GET /api/sessions
+- DELETE /api/sessions
 
-- POST `/api/something`
+
+- GET `/api/rank`
   - request parameters and request body content
   - response body content
-- GET `/api/something`
+- POST `/api/rank`
+  - request parameters and request body content
+  - response body content
+- POST `/api/validateRoute`
   - request parameters
   - response body content
-- POST `/api/something`
+- GET `/api/start`
   - request parameters and request body content
   - response body content
-- ...
+
 
 ## Database Tables
 
@@ -42,8 +50,12 @@
 
 ## Users Credentials
 
-- username, password (plus any other requested info)
-- username, password (plus any other requested info)
+| id  | name   | surname | email                    | username     | password    |
+| --- | ------ | ------- | ------------------------ | ------------ | ----------- |
+| 1   | Mario  | Rosasi  | mario\.rossi@test\.com   | mario88      | password123 |
+| 2   | Giulia | Bianchi | giulia\.bianchi@test\.it | giulietta\_b | secret2026  |
+| 3   | Luca   | Verdi   | l\.verdi@test\.com       | green\_luca  | metro_fan   |
+| 4   | Elena  | Ferrari | e\.ferrari@lastrace\.net | elena\_race  | speedy99    |
 
 ## Use of AI Tools
 Briefly describe whether you used any AI tools (e.g., ChatGPT, GitHub Copilot, Claude) while working on this project, for which purposes (e.g., clarifying concepts, debugging, generating code), and how you verified or adapted their output.
