@@ -3,9 +3,14 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import './App.css'
 
 import { useEffect, useState } from 'react';
+import { Container } from 'react-bootstrap/';
 
 import API from "./API.js";
 import FeedbackContext from "./contexts/FeedbackContext.js";
+
+import Header from './components/Header.jsx';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { LoginForm } from './components/Auth.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -57,6 +62,15 @@ function App() {
     <FeedbackContext.Provider value={{setFeedback, setFeedbackFromError, setShouldRefresh}}>
       <div className="min-vh-100 d-flex flex-column">
         <Header logout={handleLogout} user={user} loggedIn={loggedIn} />
+        
+        <Container fluid className="flex-grow-1 d-flex flex-column">
+          <Routes>
+            <Route path="/login" element={ /* If the user is ALREADY logged-in, redirect to root */
+                loggedIn ? <Navigate replace to='/' />
+                : <LoginForm login={handleLogin} />
+            } />
+          </Routes>
+        </Container>
       </div>
     </FeedbackContext.Provider>
   )
