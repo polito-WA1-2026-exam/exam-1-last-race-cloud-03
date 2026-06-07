@@ -11,6 +11,7 @@ import FeedbackContext from "./contexts/FeedbackContext.js";
 import Header from './components/Header.jsx';
 import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { LoginForm } from './components/Auth.jsx';
+import { RulesLayout } from './components/RulesLayout.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -68,6 +69,10 @@ function App() {
             <Route path="/login" element={ /* If the user is ALREADY logged-in, redirect to root */
                 loggedIn ? <Navigate replace to='/' />
                 : <LoginForm login={handleLogin} />
+            } />
+            <Route path="/" element={ /* If the user is not logged-in, redirect to log-in form*/
+                  <RulesLayout
+                      loggedIn={loggedIn}/>
             } />
           </Routes>
         </Container>
