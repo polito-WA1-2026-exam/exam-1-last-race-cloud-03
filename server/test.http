@@ -29,7 +29,7 @@ POST http://localhost:3001/api/game/end
 content-type: application/json
 
 {
-  "gameId": 105,
+  "gameId": 2,
   "route": [1, 2, 3, 5]
 }
 

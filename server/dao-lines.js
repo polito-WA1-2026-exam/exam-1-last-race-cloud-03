@@ -99,4 +99,29 @@ export default function LinesDao() {
             );
         });
     };
+
+    this.getGame = (gameId, userId) => {
+        return new Promise((resolve, reject) => {
+            db.get(
+                `SELECT * FROM game WHERE id=? AND userid=?;`,
+                [gameId, userId],
+                function (err, rows) {
+                if (err) return reject(err);
+                else return resolve(rows);
+                },
+            );
+        });
+    }
+
+    this.invalidateGame = (gameId) => {
+        return new Promise((resolve, reject) => {
+            db.run(`UPDATE game SET status="INVALID" WHERE id=?`,
+                [gameId],
+                function (err) {
+                    if (err) return reject(err);
+                    resolve(this.changes);
+                }
+            );
+        });
+    }
 }

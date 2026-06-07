@@ -3,11 +3,14 @@ import express from "express";
 import session from "express-session";
 import morgan from "morgan"; // logging middleware
 import cors from "cors"; // CORS middleware
+import dayjs from "dayjs";
 
 import passport from "passport";
 import LocalStrategy from "passport-local";
 import UserDao from "./dao-users.js";
 import LinesDao from "./dao-lines.js";
+
+import {validateRoute,  generateRouteEvents} from "./utils.js";
 
 const userDao = new UserDao();
 const linesDao = new LinesDao();
@@ -20,8 +23,8 @@ const port = 3001;
 
 /** Set up and enable Cross-Origin Resource Sharing (CORS) **/
 const corsOptions = {
-    origin: 'http://localhost:5173',
-    credentials: true
+  origin: "http://localhost:5173",
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -114,82 +117,100 @@ app.delete("/api/sessions/current", (req, res) => {
   });
 });
 
-
-
-
-
-
-
-
-
-
 /*** lines APIs ***/
 // 1. start the game
 // POST /api/game/start
-app.post("/api/game/start", isLoggedIn,
-  async (req, res) => {
-    const userId = req.user.id;
+app.post("/api/game/start", isLoggedIn, async (req, res) => {
+  const userId = req.user.id;
 
-    const allStationIds = Object.keys(MAIN_GRAPH);
-    let startStationId;
-    let validDestinations = [];
+  const allStationIds = Object.keys(MAIN_GRAPH);
+  let startStationId;
+  let validDestinations = [];
 
-    //try all stations for the origin station
-    while (validDestinations.length === 0) {
-      startStationId =
-        allStationIds[Math.floor(Math.random() * allStationIds.length)];
-      const distances = linesDao.getDistancesFromStart(startStationId, MAIN_GRAPH); // Algoritmo BFS
-      validDestinations = Object.keys(distances).filter(
-        (id) => distances[id] >= 3,
-      );
-    }
+  //try all stations for the origin station
+  while (validDestinations.length === 0) {
+    startStationId =
+      allStationIds[Math.floor(Math.random() * allStationIds.length)];
+    const distances = linesDao.getDistancesFromStart(
+      startStationId,
+      MAIN_GRAPH,
+    ); // Algoritmo BFS
+    validDestinations = Object.keys(distances).filter(
+      (id) => distances[id] >= 3,
+    );
+  }
 
-    const destinationStationId =
-      validDestinations[Math.floor(Math.random() * validDestinations.length)];
+  const destinationStationId =
+    validDestinations[Math.floor(Math.random() * validDestinations.length)];
 
-    //adding new game in db
-    const newGameId = await linesDao.addGame(userId, startStationId, destinationStationId);
+  //adding new game in db
+  const newGameId = await linesDao.addGame(
+    userId,
+    startStationId,
+    destinationStationId,
+  );
 
-    res.json({
-      gameId: newGameId,
-      startStationId: parseInt(startStationId),
-      destinationStationId: parseInt(destinationStationId),
+  res.json({
+    gameId: newGameId,
+    startStationId: parseInt(startStationId),
+    destinationStationId: parseInt(destinationStationId),
+  });
+});
+
+app.post("/api/game/end", isLoggedIn, async (req, res) => {
+  const userId = req.user.id;
+
+  const finishTime = dayjs();
+
+  const { gameId, route } = req.body || {};
+  if (!gameId)
+    return res.status(400).json({ error: "Missing gameId in request body" });
+  const game = await linesDao.getGame(parseInt(gameId, 10), userId);
+  console.log(!game);
+  if (!game || game.status !== "PLANNING") 
+    return res.status(404).json({ error: "Game invalid or not associated with current user" });
+
+  const startTime = dayjs(game.created_at);
+  const secondsElapsed = finishTime.diff(startTime, 'second');
+
+  if (secondsElapsed > 94) {
+    linesDao.invalidateGame(gameId);
+    
+    return res.status(400).json({ 
+      error: "Timeout expired! You exceeded the 90 seconds limit.",
+      secondsElapsed: secondsElapsed
     });
   }
-);
 
-app.post("/api/game/end", isLoggedIn,
-  async (req, res) => {
-    const userId = req.user.id;
+  const errors =  validateRoute(route, game, MAIN_GRAPH);
+  if(errors){
+    return res.json({
+      errors
+    })
+  } 
 
-    const gameId = req.gameId;
-    const route = req.route;
-  }
-);
+  const steps = await generateRouteEvents(route);
+  res.json({ steps });
+});
 
-app.get("/api/stations", isLoggedIn,
-  async (req, res) => {
-    const stations = await linesDao.getStations();
+app.get("/api/stations", isLoggedIn, async (req, res) => {
+  const stations = await linesDao.getStations();
 
-    res.json({
-      stations,
-    });
-  }
-);
+  res.json({
+    stations,
+  });
+});
 
-app.get("/api/rank", isLoggedIn,
-  async (req, res) => {
-    const rank = await linesDao.getRank();
+app.get("/api/rank", isLoggedIn, async (req, res) => {
+  const rank = await linesDao.getRank();
 
-    res.json({
-      rank,
-    });
-  }
-);
+  res.json({
+    rank,
+  });
+});
 
 // activate the server
 app.listen(port, async () => {
   await initializeServer();
-  console.log(MAIN_GRAPH);
   console.log(`Server listening at http://localhost:${port}`);
 });
