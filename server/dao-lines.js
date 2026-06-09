@@ -25,17 +25,17 @@ export default function LinesDao() {
         const graph = {};
         const stations = await this.getStations();
         stations.forEach((s) => {
-        graph[s.id] = { id: s.id, name: s.name, neighbors: [] };
+            graph[s.id] = { id: s.id, name: s.name, neighbors: [] };
         });
 
         const connections = await getConnections();
         connections.forEach((c) => {
-        const a = c.station1;
-        const b = c.station2;
-        // Ignore unknown stations (defensive)
-        if (!graph[a] || !graph[b]) return;
-        graph[a].neighbors.push(graph[b]);
-        graph[b].neighbors.push(graph[a]);
+            const a = c.station1;
+            const b = c.station2;
+            // Ignore unknown stations (defensive)
+            if (!graph[a] || !graph[b]) return;
+            graph[a].neighbors.push(graph[b]);
+            graph[b].neighbors.push(graph[a]);
         });
 
         return graph;
