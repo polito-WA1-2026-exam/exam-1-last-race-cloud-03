@@ -1,8 +1,6 @@
-import db from "./db.js";
-
 export function validateRoute(routeSegments, game, networkGraph) {
   if (!routeSegments || routeSegments.length === 0) {
-    return {error: "Empty route" };
+    return { error: "Empty route" };
   }
 
   const firstSegment = routeSegments[0];
@@ -11,23 +9,30 @@ export function validateRoute(routeSegments, game, networkGraph) {
   }
 
   let last_station = null;
+  
+  const usedSegments = new Set();
 
   for (let i = 0; i < routeSegments.length; i++) {
     const segment = routeSegments[i];
 
-    const availableSegment = networkGraph[segment.from].neighbors.contains(segment.to());
-
-    if(!availableSegment){
-      return { error: `Segment ${i+1} does not exist` };
+    const availableSegment = networkGraph[segment.from].neighbors.includes(segment.to);
+    if (!availableSegment) {
+      return { error: `Segment ${i + 1} does not exist` };
     }
 
-    if (i!=0) {
-      if (last_station!=segment.from) {
-        return {
-          error: `Segment not in order`,
-        };
+    if (i != 0) {
+      if (last_station != segment.from) {
+        return { error: `Segment not in order` };
       }
     }
+
+    const segmentKey = [String(segment.from), String(segment.to)].sort().join("-");
+
+    if (usedSegments.has(segmentKey)) {
+      return { error: `Segment ${i + 1} (${segment.from} <-> ${segment.to}) has already been used in this route!` };
+    }
+    
+    usedSegments.add(segmentKey);
     last_station = segment.to;
   }
 
@@ -39,15 +44,13 @@ export function validateRoute(routeSegments, game, networkGraph) {
   return null;
 }
 
-export async function generateRouteEvents(route) {
-  const allEvents = await db.all("SELECT id, description, coins FROM events");
-
+export async function generateRouteEvents(route, allEvents) {
   let currentCoins = 20;
   const stepsExecuted = [];
 
-  for (let i = 0; i < route.length - 1; i++) {
-    const fromStation = route[i];
-    const toStation = route[i + 1];
+  for (let i = 0; i < route.length; i++) {
+    const fromStation = route[i].from;
+    const toStation = route[i].to;
 
     const randomIndex = Math.floor(Math.random() * allEvents.length);
     const randomEvent = allEvents[randomIndex];
