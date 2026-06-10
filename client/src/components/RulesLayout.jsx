@@ -1,14 +1,10 @@
 import { Col, Container, Row, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-/**
- * @param {{ loggedIn?: boolean }} props
- */
 export function RulesLayout(props) {
   const navigate = useNavigate();
   return (
     <Container className="py-4 py-md-5">
-      {/* 1. ROW DEI PULSANTI (Centrati e più grandi) */}
       {props.loggedIn && (
         <Row className="justify-content-center mb-4">
           <Col xs={12} md={10} lg={8} className="d-flex justify-content-center gap-3">
@@ -32,7 +28,6 @@ export function RulesLayout(props) {
         </Row>
       )}
 
-      {/* 2. ROW DELLE REGOLE */}
       <Row className="justify-content-center">
         <Col xs={12} md={10} lg={8} className="text-start">
           <div className="bg-white border rounded-4 shadow-sm p-4 p-md-5">

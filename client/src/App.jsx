@@ -12,6 +12,8 @@ import Header from './components/Header.jsx';
 import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { LoginForm } from './components/Auth.jsx';
 import { RulesLayout } from './components/RulesLayout.jsx';
+import { Rank } from './components/Rank.jsx';
+
 
 function App() {
   const [count, setCount] = useState(0)
@@ -71,8 +73,11 @@ function App() {
                 : <LoginForm login={handleLogin} />
             } />
             <Route path="/" element={ /* If the user is not logged-in, redirect to log-in form*/
-                  <RulesLayout
-                      loggedIn={loggedIn}/>
+                <RulesLayout loggedIn={loggedIn}/>
+            } />
+            <Route path="/rank" element={ /* If the user is not logged-in, redirect to log-in form*/
+                !loggedIn ? <Navigate replace to='/login'/>
+                : <Rank loggedIn={loggedIn}/>
             } />
           </Routes>
         </Container>
