@@ -166,7 +166,7 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
   if (!gameId)
     return res.status(400).json({ error: "Missing gameId in request body" });
   const game = await linesDao.getGame(parseInt(gameId, 10), userId);
-  console.log(!game);
+
   if (!game || game.status !== "PLANNING") 
     return res.status(404).json({ error: "Game invalid or not associated with current user" });
 
@@ -182,14 +182,17 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
     });
   }
 
-  const errors =  validateRoute(route, game, MAIN_GRAPH);
-  if(errors){
+  const error =  validateRoute(route, game, MAIN_GRAPH);
+
+  if(error){
     return res.json({
-      errors
+      error
     })
   } 
 
-  const steps = await generateRouteEvents(route);
+  const allEvents = await linesDao.getEvents();
+
+  const steps = await generateRouteEvents(route, allEvents);
   res.json({ steps });
 });
 

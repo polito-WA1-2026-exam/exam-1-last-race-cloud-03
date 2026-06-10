@@ -34,8 +34,8 @@ export default function LinesDao() {
             const b = c.station2;
             // Ignore unknown stations (defensive)
             if (!graph[a] || !graph[b]) return;
-            graph[a].neighbors.push(graph[b]);
-            graph[b].neighbors.push(graph[a]);
+            graph[a].neighbors.push(graph[b].id);
+            graph[b].neighbors.push(graph[a].id);
         });
 
         return graph;
@@ -115,13 +115,24 @@ export default function LinesDao() {
 
     this.invalidateGame = (gameId) => {
         return new Promise((resolve, reject) => {
-            db.run(`UPDATE game SET status="INVALID" WHERE id=?`,
-                [gameId],
+            db.run(
+                `UPDATE game SET status="INVALID" WHERE id=?`,
                 function (err) {
                     if (err) return reject(err);
                     resolve(this.changes);
                 }
             );
         });
+    }
+
+    this.getEvents = () => {
+        return new Promise((resolve, reject) => {
+            db.all("SELECT id, description, coins FROM events", 
+                function (err, rows) {
+                if (err) return reject(err);
+                else return resolve(rows);
+                },
+            );
+        })
     }
 }
