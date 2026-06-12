@@ -127,23 +127,21 @@ app.post("/api/game/start", isLoggedIn, async (req, res) => {
   let startStationId;
   let validDestinations = [];
 
-  //try all stations for the origin station
   while (validDestinations.length === 0) {
     startStationId =
       allStationIds[Math.floor(Math.random() * allStationIds.length)];
     const distances = linesDao.getDistancesFromStart(
       startStationId,
       MAIN_GRAPH,
-    ); // Algoritmo BFS
+    );
     validDestinations = Object.keys(distances).filter(
       (id) => distances[id] >= 3,
     );
   }
-
+  console.log(startStationId);
   const destinationStationId =
     validDestinations[Math.floor(Math.random() * validDestinations.length)];
 
-  //adding new game in db
   const newGameId = await linesDao.addGame(
     userId,
     startStationId,
@@ -182,26 +180,59 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
     });
   }
 
-  const error =  validateRoute(route, game, MAIN_GRAPH);
+  const validation =  validateRoute(route, game, MAIN_GRAPH);
 
-  if(error){
+  if(validation.error){
     return res.json({
-      error
+      error: validation.error
     })
   } 
 
+  const finalRoute = validation.validRoute;
+
   const allEvents = await linesDao.getEvents();
 
-  const steps = await generateRouteEvents(route, allEvents);
-  res.json({ steps });
+  const response = await generateRouteEvents(finalRoute, allEvents, MAIN_GRAPH);
+  res.json( response );
 });
 
 app.get("/api/stations", isLoggedIn, async (req, res) => {
   const stations = await linesDao.getStations();
 
-  res.json({
-    stations,
-  });
+  res.json(
+    stations
+  );
+});
+
+app.get("/api/segments", isLoggedIn, async (req, res) => {
+  let segments = [];
+  const visti = new Set();
+  let idContatore = 1;
+
+  for (const stationId in MAIN_GRAPH) {
+        const station = MAIN_GRAPH[stationId];
+        
+        station.neighbors.forEach((neighborId) => {
+            const coppiaChiave = [station.id, neighborId].sort().join('-');
+
+            if (!visti.has(coppiaChiave)) {
+                visti.add(coppiaChiave); 
+
+                const neighbor = MAIN_GRAPH[neighborId];
+
+                segments.push({
+                    id: idContatore++, 
+                    name: `Tratta (${station.name} - ${neighbor ? neighbor.name : 'Stazione ' + neighborId})`,
+                    from: station.name,
+                    to: neighbor ? neighbor.name : `Stazione ${neighborId}`,
+                    fromId: station.id,
+                    toId: neighborId
+                });
+            }
+        });
+    }
+
+    res.json(segments)
 });
 
 app.get("/api/rank", isLoggedIn, async (req, res) => {

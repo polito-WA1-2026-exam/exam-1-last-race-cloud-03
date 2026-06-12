@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 export default function LinesDao() {
     this.getStations = () => {
         return new Promise((resolve, reject) => {
-        db.all("SELECT id, name FROM station;", (err, rows) => {
+        db.all("SELECT id, name FROM station ORDER BY id;", (err, rows) => {
             if (err) return reject(err);
             resolve(rows);
         });
@@ -21,7 +21,6 @@ export default function LinesDao() {
     }
 
     this.buildGraph = async function () {
-        // stations: id -> { id, name, neighbors: [stationObj] }
         const graph = {};
         const stations = await this.getStations();
         stations.forEach((s) => {
@@ -32,7 +31,6 @@ export default function LinesDao() {
         connections.forEach((c) => {
             const a = c.station1;
             const b = c.station2;
-            // Ignore unknown stations (defensive)
             if (!graph[a] || !graph[b]) return;
             graph[a].neighbors.push(graph[b].id);
             graph[b].neighbors.push(graph[a].id);
@@ -45,28 +43,25 @@ export default function LinesDao() {
         const distances = {};
         const queue = [];
 
-        // startStationId deve essere l'id (number|string) della stazione
         distances[startStationId] = 0;
         queue.push(startStationId);
 
         while (queue.length > 0) {
         const currentId = queue.shift();
         const currentStation = graph[currentId];
-        if (!currentStation) continue; // difensivo
+        if (!currentStation) continue;
 
         const currentDistance = distances[currentId];
 
-        // Esplora le stazioni vicine (currentStation.neighbors contiene oggetti stazione)
         for (const neighbor of currentStation.neighbors) {
-            const nid = neighbor.id;
+            const nid = neighbor;
             if (distances[nid] === undefined) {
-            // Se non è ancora stata visitata
             distances[nid] = currentDistance + 1;
             queue.push(nid);
             }
         }
         }
-        return distances; // { '1': 0, '2': 1, '5': 3, ... }
+        return distances;
     };
 
     this.addGame = (userId, startStationId, destinationStationId) => {
@@ -90,8 +85,9 @@ export default function LinesDao() {
     this.getRank = () => {
         return new Promise((resolve, reject) => {
             db.all(
-                `SELECT username, coins FROM game, user 
-                    WHERE STATUS="COMPLETED" AND user.id=game.userid ORDER BY coins;`,
+                `SELECT username, coins FROM rank, user 
+                    WHERE user.id=rank.userid 
+                    ORDER BY coins DESC LIMIT 20;`,
                 function (err, rows) {
                 if (err) return reject(err);
                 else return resolve(rows);
