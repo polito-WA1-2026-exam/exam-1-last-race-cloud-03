@@ -8,6 +8,26 @@ content-type: application/json
 
 }
 
+###
+
+POST http://localhost:3001/api/sessions
+content-type: application/json
+
+{
+  "username": "mario.rossi@test.com",
+  "password": "password123" 
+}
+
+
+###
+
+GET http://localhost:3001/api/segments
+content-type: application/json
+
+{
+
+}
+
 ###  giusta
 
 POST http://localhost:3001/api/game/end
@@ -46,6 +66,15 @@ content-type: application/json
     { "station_from_id": 2, "station_to_id": 3 },
     { "station_from_id": 3, "station_to_id": 4 }
   ]
+}
+###  giusta
+
+POST http://localhost:3001/api/game/end
+content-type: application/json
+
+{
+  "gameId":102,
+  "route":[{"from":7,"to":10},{"from":6,"to":7},{"from":7,"to":9},{"from":9,"to":11}]
 }
 
 ###

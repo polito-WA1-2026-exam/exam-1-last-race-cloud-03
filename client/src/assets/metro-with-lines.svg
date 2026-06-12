@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%" style="background-color: #1a1a1a;">
+  <style>
+    .line { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+    .station-node { fill: #ffffff; stroke: #000000; stroke-width: 2; }
+    .interchange-node { fill: #ffffff; stroke: #ffffff; stroke-width: 3; }
+    .interchange-ring { fill: none; stroke: #000000; stroke-width: 2; }
+    .label { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 11px; fill: #ffffff; font-weight: 500; }
+    .label-interchange { font-size: 12px; font-weight: bold; fill: #ffffff; }
+  </style>
+
+  <path class="line" stroke="#FF0000" d="M 150,150 L 300,150 L 450,150 L 600,150" />
+  
+  <path class="line" stroke="#0000FF" d="M 150,150 L 150,350 L 300,350 L 500,350 L 650,350" />
+  
+  <path class="line" stroke="#00FF00" d="M 300,150 L 150,350 L 300,480 L 500,480 L 650,550" />
+  
+  <path class="line" stroke="#FFFF00" d="M 600,150 L 300,480 L 500,350 L 500,480 L 500,560" />
+
+  <circle class="interchange-ring" cx="150" cy="150" r="9" />
+  <circle class="interchange-node" cx="150" cy="150" r="6" />
+  <text class="label label-interchange" x="135" y="130">Centrale</text>
+
+  <circle class="interchange-ring" cx="300" cy="150" r="9" />
+  <circle class="interchange-node" cx="300" cy="150" r="6" />
+  <text class="label label-interchange" x="285" y="130">Porta Velaria</text>
+
+  <circle class="station-node" cx="450" cy="150" r="5" />
+  <text class="label" x="435" y="130">Crocevia del Falco</text>
+
+  <circle class="interchange-ring" cx="600" cy="150" r="9" />
+  <circle class="interchange-node" cx="600" cy="150" r="6" />
+  <text class="label label-interchange" x="585" y="130">Piazza delle Lanterne</text>
+
+  <circle class="interchange-ring" cx="150" cy="350" r="9" />
+  <circle class="interchange-node" cx="150" cy="350" r="6" />
+  <text class="label label-interchange" x="65" y="355">Fontana Oscura</text>
+
+  <circle class="station-node" cx="300" cy="350" r="5" />
+  <text class="label" x="285" y="335">Borgo Sereno</text>
+
+  <circle class="interchange-ring" cx="500" cy="350" r="9" />
+  <circle class="interchange-node" cx="500" cy="350" r="6" />
+  <text class="label label-interchange" x="515" y="345">Viale dei Mosaici</text>
+
+  <circle class="station-node" cx="650" cy="350" r="5" />
+  <text class="label" x="640" y="335">Stazione Aurora</text>
+
+  <circle class="station-node" cx="300" cy="480" r="5" />
+  <text class="label" x="215" y="485">Torre Cinerea</text>
+
+  <circle class="station-node" cx="500" cy="480" r="5" />
+  <text class="label" x="515" y="485">Campo dell'Eco</text>
+
+  <circle class="station-node" cx="650" cy="550" r="5" />
+  <text class="label" x="640" y="535">Valle Verde</text>
+
+  <circle class="station-node" cx="500" cy="560" r="5" />
+  <text class="label" x="515" y="565">Nebbia Alta</text>
+
+  <g transform="translate(50, 500)">
+    <rect width="140" height="80" fill="#2a2a2a" rx="5" stroke="#444" />
+    <line x1="15" y1="15" x2="45" y2="15" stroke="#FF0000" stroke-width="4" />
+    <text class="label" x="55" y="19">Red Line</text>
+    <line x1="15" y1="33" x2="45" y2="33" stroke="#0000FF" stroke-width="4" />
+    <text class="label" x="55" y="37">Blue Line</text>
+    <line x1="15" y1="51" x2="45" y2="51" stroke="#00FF00" stroke-width="4" />
+    <text class="label" x="55" y="55">Green Line</text>
+    <line x1="15" y1="69" x2="45" y2="69" stroke="#FFFF00" stroke-width="4" />
+    <text class="label" x="55" y="73">Yellow Line</text>
+  </g>
+</svg>
