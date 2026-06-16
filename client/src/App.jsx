@@ -21,7 +21,8 @@ function App() {
   const [user, setUser] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [feedback, setFeedback] = useState('');
-  const [loading, setLoading] = useState(true); // <--- NUOVO
+  const [loading, setLoading] = useState(true);
+  const [currentPhase, setCurrentPhase] = useState('SETUP');
 
   const setFeedbackFromError = (err) => {
     let message = '';
@@ -71,7 +72,7 @@ function App() {
   return (
     <FeedbackContext.Provider value={{setFeedback, setFeedbackFromError}}>
       <div className="min-vh-100 d-flex flex-column" style={{ minWidth: "360px" }}>
-        <Header logout={handleLogout} user={user} loggedIn={loggedIn} />
+        <Header logout={handleLogout} user={user} loggedIn={loggedIn} currentPhase={currentPhase} setCurrentPhase={setCurrentPhase}/>
         
         <Container fluid className="flex-grow-1 d-flex flex-column">
           <Routes>
@@ -88,7 +89,7 @@ function App() {
             } />
             <Route path="/play" element={
                 !loggedIn ? <Navigate replace to='/login'/>
-                : <GameContainer loggedIn={loggedIn}/>
+                : <GameContainer loggedIn={loggedIn} setCurrentPhase={setCurrentPhase} currentPhase={currentPhase}/>
             } />
           </Routes>
 

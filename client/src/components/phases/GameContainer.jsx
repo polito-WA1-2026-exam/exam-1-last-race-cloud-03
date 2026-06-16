@@ -5,9 +5,8 @@ import { ExecutionPhase } from './ExecutionPhase';
 import { EndingPhase } from './EndingPhase';
 import API from '../../API';
 
-export default function GameContainer() {
-  // Possible phases: 'SETUP', 'PLANNING', 'EXECUTION', 'ENDING'
-  const [currentPhase, setCurrentPhase] = useState('SETUP'); 
+export default function GameContainer(props) {
+  // phases: 'SETUP', 'PLANNING', 'EXECUTION', 'ENDING'
   const [gameGoals, setGameGoals] = useState(null);               
   const [gameResults, setGameResults] = useState(null);         
   const [loading, setLoading] = useState(true);
@@ -24,7 +23,7 @@ export default function GameContainer() {
       })
       .then((json) => {
         setGameGoals(json);
-        setCurrentPhase('PLANNING');
+        props.setCurrentPhase('PLANNING');
         setLoading(false);
       })
       .catch((err) => {
@@ -60,12 +59,16 @@ export default function GameContainer() {
   const handleRestartGame = () => {
     setGameGoals(null);       
     setGameResults(null);    
-    setCurrentPhase('SETUP');
+    props.setCurrentPhase('SETUP');
   };
+
+  if (!props.loggedIn) {
+      return null;
+  }
 
   if (loading) return <div className="text-center mt-5">Generating metro transit route... 🚇</div>;
 
-  switch (currentPhase) {
+  switch (props.currentPhase) {
     case 'SETUP':
       return (
         <SetupPhase 
@@ -81,7 +84,7 @@ export default function GameContainer() {
           stations={stations}
           onGameEnd={(results) => {
             setGameResults(results);
-            setCurrentPhase('EXECUTION');
+            props.setCurrentPhase('EXECUTION');
           }} 
         />
       );
@@ -91,7 +94,7 @@ export default function GameContainer() {
         <ExecutionPhase 
           gameResults={gameResults}
           onGameEnd={(finalData) => {
-            setCurrentPhase('ENDING');
+            props.setCurrentPhase('ENDING');
           }}
         />
       );
