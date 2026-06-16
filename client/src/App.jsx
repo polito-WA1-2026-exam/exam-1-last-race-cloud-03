@@ -3,26 +3,25 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import './App.css'
 
 import { useEffect, useState } from 'react';
-import { Container } from 'react-bootstrap/';
+import { Container, Toast, ToastBody } from 'react-bootstrap/';
 
 import API from "./API.js";
 import FeedbackContext from "./contexts/FeedbackContext.js";
 
 import Header from './components/Header.jsx';
-import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { LoginForm } from './components/Auth.jsx';
 import { RulesLayout } from './components/RulesLayout.jsx';
 import { Rank } from './components/Rank.jsx';
+import GameContainer from './components/phases/GameContainer.jsx';
 
 
 function App() {
-  const [count, setCount] = useState(0)
 
   const [user, setUser] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [feedback, setFeedback] = useState('');
-  const [shouldRefresh, setShouldRefresh] = useState(true);
-  
+  const [loading, setLoading] = useState(true); // <--- NUOVO
 
   const setFeedbackFromError = (err) => {
     let message = '';
@@ -32,17 +31,17 @@ function App() {
   };
 
   useEffect(() => {
-      // Checking if the user is already logged-in
-      // This useEffect is called only the first time the component is mounted (i.e., when the page is (re)loaded.)
-      API.getUserInfo()
-        .then(user => {
-          setLoggedIn(true);
-          setUser(user);  // here you have the user info, if already logged in
-        }).catch(e => {
-          if(loggedIn)    // printing error only if the state is inconsistent (i.e., the app was configured to be logged-in)
-            setFeedbackFromError(e);
-          setLoggedIn(false); setUser(null);
-        }); 
+    API.getUserInfo()
+      .then(user => {
+        setLoggedIn(true);
+        setUser(user);
+        setLoading(false); 
+      }).catch(e => {
+        if(loggedIn) setFeedbackFromError(e);
+        setLoggedIn(false); 
+        setUser(null);
+        setLoading(false); 
+      }); 
   }, []);
 
   /**
@@ -60,26 +59,51 @@ function App() {
     setFeedback("Welcome, "+user.name);
   };
 
-
+  if (loading) {
+    return (
+      <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Caricamento sessione...</span>
+        </div>
+      </div>
+    );
+  }
   return (
-    <FeedbackContext.Provider value={{setFeedback, setFeedbackFromError, setShouldRefresh}}>
-      <div className="min-vh-100 d-flex flex-column">
+    <FeedbackContext.Provider value={{setFeedback, setFeedbackFromError}}>
+      <div className="min-vh-100 d-flex flex-column" style={{ minWidth: "360px" }}>
         <Header logout={handleLogout} user={user} loggedIn={loggedIn} />
         
         <Container fluid className="flex-grow-1 d-flex flex-column">
           <Routes>
-            <Route path="/login" element={ /* If the user is ALREADY logged-in, redirect to root */
+            <Route path="/login" element={
                 loggedIn ? <Navigate replace to='/' />
                 : <LoginForm login={handleLogin} />
             } />
-            <Route path="/" element={ /* If the user is not logged-in, redirect to log-in form*/
+            <Route path="/" element={
                 <RulesLayout loggedIn={loggedIn}/>
             } />
-            <Route path="/rank" element={ /* If the user is not logged-in, redirect to log-in form*/
+            <Route path="/rank" element={ 
                 !loggedIn ? <Navigate replace to='/login'/>
                 : <Rank loggedIn={loggedIn}/>
             } />
+            <Route path="/play" element={
+                !loggedIn ? <Navigate replace to='/login'/>
+                : <GameContainer loggedIn={loggedIn}/>
+            } />
           </Routes>
+
+          <Toast
+              show={feedback !== ''}
+              autohide
+              onClose={() => setFeedback('')}
+              delay={4000}
+              position="top-end"
+              className="position-fixed end-0 m-3"
+          >
+              <ToastBody>
+                  {feedback}
+              </ToastBody>
+          </Toast>
         </Container>
       </div>
     </FeedbackContext.Provider>
