@@ -3,10 +3,9 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import './App.css'
 
 import { useEffect, useState } from 'react';
-import { Container, Toast, ToastBody } from 'react-bootstrap/';
+import { Container} from 'react-bootstrap/';
 
 import API from "./API.js";
-import FeedbackContext from "./contexts/FeedbackContext.js";
 
 import Header from './components/Header.jsx';
 import { Route, Routes, Navigate } from 'react-router-dom';
@@ -20,16 +19,8 @@ function App() {
 
   const [user, setUser] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [feedback, setFeedback] = useState('');
   const [loading, setLoading] = useState(true);
   const [currentPhase, setCurrentPhase] = useState('SETUP');
-
-  const setFeedbackFromError = (err) => {
-    let message = '';
-    if (err.message) message = err.message;
-    else message = "Unknown Error";
-    setFeedback(message); // Assuming only one error message at a time
-  };
 
   useEffect(() => {
     API.getUserInfo()
@@ -38,12 +29,11 @@ function App() {
         setUser(user);
         setLoading(false); 
       }).catch(e => {
-        if(loggedIn) setFeedbackFromError(e);
         setLoggedIn(false); 
         setUser(null);
         setLoading(false); 
       }); 
-  }, []);
+  }, [loggedIn]);
 
   /**
    * This function handles the logout process.
@@ -58,20 +48,18 @@ function App() {
   const handleLogin = async (credentials) => {
     const user = await API.logIn(credentials);
     setUser(user); setLoggedIn(true);
-    setFeedback("Welcome, "+user.name);
   };
 
   if (loading) {
     return (
       <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Caricamento sessione...</span>
+          <span className="visually-hidden">Session loading...</span>
         </div>
       </div>
     );
   }
   return (
-    <FeedbackContext.Provider value={{setFeedback, setFeedbackFromError}}>
       <div className="min-vh-100 d-flex flex-column" style={{ minWidth: "360px" }}>
         <Header logout={handleLogout} user={user} loggedIn={loggedIn} currentPhase={currentPhase} setCurrentPhase={setCurrentPhase}/>
         
@@ -86,29 +74,15 @@ function App() {
             } />
             <Route path="/rank" element={ 
                 !loggedIn ? <Navigate replace to='/login'/>
-                : <Rank loggedIn={loggedIn}/>
+                : <Rank loggedIn={loggedIn}/> 
             } />
             <Route path="/play" element={
                 !loggedIn ? <Navigate replace to='/login'/>
                 : <GameContainer loggedIn={loggedIn} setCurrentPhase={setCurrentPhase} currentPhase={currentPhase}/>
             } />
           </Routes>
-
-          <Toast
-              show={feedback !== ''}
-              autohide
-              onClose={() => setFeedback('')}
-              delay={4000}
-              position="top-end"
-              className="position-fixed end-0 m-3"
-          >
-              <ToastBody>
-                  {feedback}
-              </ToastBody>
-          </Toast>
         </Container>
       </div>
-    </FeedbackContext.Provider>
   )
 }
 

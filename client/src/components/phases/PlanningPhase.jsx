@@ -67,8 +67,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], onGameEnd
         <Col xs={12} md={6} className="text-center">
           <h2 className="text-success fw-bold mb-1">Phase 1: Planning...</h2>
           <p className="text-muted mb-0">
-            Mission: Reach <strong> Station {stations.find(s => s.id === gameGoals?.destinationStationId).name}</strong> starting from <strong>Station {stations.find(s => s.id === gameGoals?.startStationId).name}</strong>
-          </p>
+            Mission: Starting from <strong>Station {stations.find(s => s.id === gameGoals?.startStationId)?.name}</strong>, reach <strong>Station {stations.find(s => s.id === gameGoals?.destinationStationId)?.name}</strong>          </p>
         </Col>
 
         <Col xs={12} md={3} className="text-center text-md-end">

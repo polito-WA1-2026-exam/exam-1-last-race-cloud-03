@@ -31,10 +31,10 @@ app.use(cors(corsOptions));
 let MAIN_GRAPH = {};
 
 async function initializeServer() {
-  console.log("Caricamento della rete metropolitana dal DB...");
+  console.log("loading metro graph from DB...");
 
   MAIN_GRAPH = await linesDao.buildGraph();
-  console.log("Rete metropolitana caricata in memoria con successo!");
+  console.log("Metro network loaded successfully");
 }
 
 ////PASSPORT THINGS

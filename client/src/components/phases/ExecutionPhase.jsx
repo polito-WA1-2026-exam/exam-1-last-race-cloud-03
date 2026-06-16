@@ -151,7 +151,7 @@ function ExecutionCard({ currentStep, currentStepIndex, steps }) {
         <div className="text-center my-2 flex-grow-1">
           <div className="d-flex align-items-center justify-content-center gap-2 text-warning mb-2">
             <FaExclamationTriangle className="fs-5" />
-            <span className="text-uppercase fw-bold tracking-wider small text-muted">Imprevisto in viaggio</span>
+            <span className="text-uppercase fw-bold tracking-wider small text-muted">Travel Event</span>
           </div>
           <Card.Text className="text-dark fs-5 fw-medium px-2">
             {currentStep.event_description}
