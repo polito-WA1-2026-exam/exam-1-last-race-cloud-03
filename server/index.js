@@ -33,7 +33,6 @@ let MAIN_GRAPH = {};
 async function initializeServer() {
   console.log("Caricamento della rete metropolitana dal DB...");
 
-  // Costruiamo il grafo una volta sola
   MAIN_GRAPH = await linesDao.buildGraph();
   console.log("Rete metropolitana caricata in memoria con successo!");
 }
@@ -138,7 +137,7 @@ app.post("/api/game/start", isLoggedIn, async (req, res) => {
       (id) => distances[id] >= 3,
     );
   }
-  console.log(startStationId);
+
   const destinationStationId =
     validDestinations[Math.floor(Math.random() * validDestinations.length)];
 
