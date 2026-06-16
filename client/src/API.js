@@ -1,11 +1,6 @@
 
 const SERVER_URL = 'http://localhost:3001/api';
 
-
-/**
- * This function wants username and password inside a "credentials" object.
- * It executes the log-in.
- */
 const logIn = async (credentials) => {
     return await fetch(SERVER_URL + '/sessions', {
         method: 'POST',
@@ -18,10 +13,7 @@ const logIn = async (credentials) => {
     .then(response => response.json());
 };
   
-/**
- * This function is used to verify if the user is still logged-in.
- * It returns a JSON object with the user info.
- */
+
 const getUserInfo = async () => {
     return await fetch(SERVER_URL + '/sessions/current', {
         credentials: 'include'
@@ -29,9 +21,7 @@ const getUserInfo = async () => {
     .then(response => response.json());
 };
 
-/**
- * This function destroy the current user's session (executing the log-out).
- */
+
 const logOut = async() => {
   return await fetch(SERVER_URL + '/sessions/current', {
     method: 'DELETE',
@@ -48,5 +38,63 @@ function handleInvalidResponse(response) {
     return response;
 }
 
-const API = {logIn, getUserInfo, logOut};
+function getRank() {
+    return fetch(SERVER_URL + '/rank', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+    }).then(handleInvalidResponse)
+}
+
+function startNewGame() {
+    return fetch(SERVER_URL + '/game/start', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+    }).then(handleInvalidResponse)
+}
+
+function getAllSegments() {
+    return fetch(SERVER_URL + '/segments', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        },
+        credentials: 'include' 
+    })
+    .then(handleInvalidResponse);
+}
+
+function getAllStations() {
+    return fetch(SERVER_URL + '/stations', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        },
+        credentials: 'include' 
+    })
+    .then(handleInvalidResponse);
+}
+
+function endGame(gameId, routes) {
+    return fetch(SERVER_URL + '/game/end', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            gameId: Number(gameId),
+            route: routes
+        }),
+        credentials: 'include' 
+    })
+    .then(handleInvalidResponse);
+}
+
+const API = {logIn, getUserInfo, logOut, getRank, startNewGame, getAllSegments, getAllStations, endGame};
 export default API;
