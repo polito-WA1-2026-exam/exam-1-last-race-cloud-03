@@ -39,7 +39,7 @@ export function EndingPhase({ gameResults, onRestart }) {
             variant="outline-secondary" 
             size="lg" 
             className="w-100 py-3 fw-bold rounded-pill" 
-            onClick={() => navigate('/')}
+            onClick={() => {navigate('/')}}
           >
             <FaHome className="me-2" /> HOME
           </Button>

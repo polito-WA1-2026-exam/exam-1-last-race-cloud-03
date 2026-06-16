@@ -192,6 +192,9 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
   const allEvents = await linesDao.getEvents();
 
   const response = await generateRouteEvents(finalRoute, allEvents, MAIN_GRAPH);
+
+  linesDao.completeGame(gameId, response.totCoins);
+
   res.json( response );
 });
 

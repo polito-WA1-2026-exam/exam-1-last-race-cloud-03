@@ -85,9 +85,15 @@ export default function LinesDao() {
     this.getRank = () => {
         return new Promise((resolve, reject) => {
             db.all(
-                `SELECT username, coins FROM rank, user 
-                    WHERE user.id=rank.userid 
-                    ORDER BY coins DESC LIMIT 20;`,
+                `SELECT 
+                    u.id AS userId, 
+                    username, 
+                    MAX(g.coins) AS coins
+                FROM game g
+                JOIN user u ON g.userId = u.id
+                WHERE g.status = 'COMPLETED'
+                GROUP BY u.id, u.username
+                ORDER BY coins DESC LIMIT 20;`,
                 function (err, rows) {
                 if (err) return reject(err);
                 else return resolve(rows);
@@ -128,6 +134,21 @@ export default function LinesDao() {
                 if (err) return reject(err);
                 else return resolve(rows);
                 },
+            );
+        })
+    }
+
+    this.completeGame = (gameId, coins) => {
+        return new Promise((resolve, reject) => {
+            db.run(`UPDATE game SET status = "COMPLETED", coins=?  WHERE id=?`,
+                [coins, gameId], 
+                function (err, rows) {
+                    if (err) return reject(err);
+                    if (this.changes === 0) {
+                        return reject(new Error(`Game with ID ${gameId} not found.`));
+                    }
+                    return resolve(true);
+                }
             );
         })
     }

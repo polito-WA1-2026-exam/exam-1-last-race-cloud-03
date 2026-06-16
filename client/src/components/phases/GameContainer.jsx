@@ -34,6 +34,8 @@ export default function GameContainer(props) {
   };
 
   useEffect(() => {
+    props.setCurrentPhase('SETUP'); 
+
     Promise.all([
       API.getAllSegments().then((res) => {
         if (!res.ok) throw new Error("Failed to load map segments");
