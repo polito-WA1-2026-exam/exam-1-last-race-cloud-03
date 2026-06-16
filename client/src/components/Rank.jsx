@@ -32,22 +32,22 @@ export function Rank(props) {
   return (
     <Container className="py-4 py-md-5">
       {props.loggedIn && (
-            <Container>
-              <div className="d-flex justify-content-between align-items-center mb-4">
-            <Button 
-              variant="outline-secondary" 
-              className="px-3 py-2 rounded-pill fw-bold"
-              onClick={() => navigate('/')}
-            >
-              <FaArrowLeft className="me-2" /> Back to Home
-            </Button>
-            
-            <h2 className="text-primary fw-bold m-0 flex-grow-1 text-center">
-              <FaTrophy className="text-warning me-2" /> Global Leaderboard
-            </h2>
-            
-            <div style={{ width: '135px' }} className="d-none d-md-block"></div>
-          </div>
+          <Container>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <Button 
+                variant="outline-secondary" 
+                className="px-3 py-2 rounded-pill fw-bold"
+                onClick={() => navigate('/')}
+              >
+                <FaArrowLeft className="me-2" /> Back to Home
+              </Button>
+              
+              <h2 className="text-primary fw-bold m-0 flex-grow-1 text-center">
+                <FaTrophy className="text-warning me-2" /> Global Leaderboard
+              </h2>
+              
+              <div style={{ width: '135px' }} className="d-none d-md-block"></div>
+            </div>
 
           <Table
             hover
