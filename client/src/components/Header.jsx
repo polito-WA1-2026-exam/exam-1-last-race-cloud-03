@@ -1,6 +1,6 @@
-import { useState } from "react"; // 1. Aggiunto useState per il modale
+import { useState } from "react";
 import PropTypes from "prop-types";
-import { Badge, Col, Container, Row, Modal, Button } from "react-bootstrap/"; // 2. Importato Modal e Button
+import { Badge, Col, Container, Row, Modal, Button } from "react-bootstrap/";
 import { LogoutButton, LoginButton } from "./Auth";
 import { Link, useLocation, useNavigate } from "react-router-dom"; 
 
@@ -8,13 +8,15 @@ function Header(props) {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Stato per controllare l'apertura del modale di conferma
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const handleLogoClick = (e) => {
     if (location.pathname === "/play" && props.currentPhase === "PLANNING") {
       e.preventDefault();
       setShowConfirmModal(true);
+    }
+    else {
+      props.setCurrentPhase('SETUP');
     }
   };
 

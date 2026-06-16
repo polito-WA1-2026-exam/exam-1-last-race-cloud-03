@@ -93,7 +93,7 @@ export default function GameContainer(props) {
       return (
         <ExecutionPhase 
           gameResults={gameResults}
-          onGameEnd={(finalData) => {
+          onGameEnd={() => {
             props.setCurrentPhase('ENDING');
           }}
         />

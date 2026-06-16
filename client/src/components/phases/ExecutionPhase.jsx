@@ -1,15 +1,49 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, Button, Row, Col, ProgressBar, Badge } from 'react-bootstrap';
-// 1. CORRETTO: Aggiunto FaArrowLeft negli import
-import { FaCheckCircle, FaFlagCheckered, FaCoins, FaExclamationTriangle, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { FaCheckCircle, FaFlagCheckered, FaCoins, FaExclamationTriangle, FaArrowRight, FaArrowLeft, FaTimesCircle } from 'react-icons/fa';
 
 export function ExecutionPhase({ gameResults, onGameEnd }) {
-  // Gestiamo il caso d'emergenza in cui i dati non siano ancora pronti
   const steps = gameResults?.steps || [];
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  if (steps.length === 0) {
-    return <div className="text-center mt-5">No steps available for this journey. 🚇</div>;
+if (steps.length === 0) {
+    const errorMessage = gameResults?.error || "An unexpected error occurred during the simulation. Please try again.";
+
+    return (
+      <div className="p-4 w-100 flex-grow-1 d-flex flex-column align-items-center justify-content-center" style={{ minWidth: "360px", minHeight: "60vh" }}>
+      <h2 className="text-center mb-4 text-success fw-bold">Phase 2: Execution Journey</h2>
+        <Card className="shadow-lg border-0 rounded-4 p-4 mb-4 w-100 bg-white" style={{ maxWidth: '600px' }}>
+          <Card.Body className="text-center py-4">
+            
+            <div className="text-danger fs-1 mb-3">
+              <FaTimesCircle />
+            </div>
+            
+            <h3 className="text-danger fw-bold mb-3">Journey Simulation Failed</h3>
+            
+            <p className="text-muted fs-5 mb-4 px-2">
+              {errorMessage}
+            </p>
+
+            <hr className="my-4 text-muted opacity-25" />
+
+            <Button 
+              variant="danger" 
+              size="lg" 
+              className="px-5 py-2 fw-bold rounded-pill shadow-sm"
+              onClick={() => onGameEnd({ 
+                score: 0, 
+                stepsCount: 0 
+              })}
+            >
+              Finish <FaFlagCheckered className="ms-2" />
+            </Button>
+
+          </Card.Body>
+        </Card>
+
+      </div>
+    );
   }
 
   const handleNext = () => {
@@ -63,7 +97,6 @@ export function ExecutionPhase({ gameResults, onGameEnd }) {
               variant="danger" 
               size="lg" 
               className="px-4 py-2 fw-bold rounded-pill shadow"
-              // Passiamo il punteggio REALE dell'ultimo turno all'EndingPhase
               onClick={() => onGameEnd({ 
                 score: steps[steps.length - 1]?.updated_coins || 0, 
                 stepsCount: steps.length 
@@ -129,13 +162,13 @@ function ExecutionCard({ currentStep, currentStepIndex, steps }) {
 
         <Row className="align-items-center text-center g-2">
           <Col xs={6} className="border-end border-light">
-            <div className="small text-muted text-uppercase">Effetto Turno</div>
+            <div className="small text-muted text-uppercase">Turn Effect</div>
             <div className={`fs-5 ${getCoinEffectColor(currentStep.coin_effect)}`}>
               {currentStep.coin_effect > 0 ? `+${currentStep.coin_effect}` : currentStep.coin_effect} <FaCoins className="ms-1" />
             </div>
           </Col>
           <Col xs={6}>
-            <div className="small text-muted text-uppercase">Monete Totali</div>
+            <div className="small text-muted text-uppercase">Total Coins</div>
             <div className="fs-5 fw-bold text-primary">
               {currentStep.updated_coins} <FaCoins className="ms-1 text-warning" />
             </div>

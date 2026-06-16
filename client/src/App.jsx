@@ -52,6 +52,7 @@ function App() {
       await API.logOut();
       // clean up everything
       setLoggedIn(false); setUser(null);
+      setCurrentPhase("SETUP");
   };
 
   const handleLogin = async (credentials) => {
