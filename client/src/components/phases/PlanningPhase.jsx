@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Button, Badge, Row, Col, ListGroup } from 'react-bootstrap';
 import { FaClock, FaCheckCircle, FaTimes, FaMapMarkedAlt } from 'react-icons/fa';
 
 import MetroMapSvg from './../../assets/metro-without.svg';
 import API from '../../API';
 
-export function PlanningPhase({ gameGoals, segments = [], stations=[], onGameEnd }) {
+export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurrentPhase, onGameEnd }) {
   const [timeLeft, setTimeLeft] = useState(90);
   const [selectedRoute, setSelectedRoute] = useState([]); 
 
@@ -24,6 +24,11 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], onGameEnd
     try {
       const serverResponse = await API.endGame(gameId, formattedRoute);
       const data = await serverResponse.json();
+      if(data.error){
+        setCurrentPhase("ENDING");
+      } else {
+        setCurrentPhase('EXECUTION');
+      }
       onGameEnd(data);
     } catch (error) {
       console.error("Errore durante la chiusura della partita:", error);
@@ -55,10 +60,8 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], onGameEnd
   );
 
   return (
-    // 🌟 Ridotto il padding generale a p-3 e forzato un font base leggermente più piccolo
     <div className="p-3 w-100 flex-grow-1 d-flex flex-column" style={{ fontSize: "0.9rem" }}>
       
-      {/* INTESTAZIONE COMPATTA */}
       <Row className="mb-3 align-items-center justify-content-between g-2">
         <Col xs={12} md={9} className="text-center text-md-start">
           <h3 className="text-success fw-bold mb-1 fs-4">Phase 1: Planning...</h3>

@@ -84,9 +84,9 @@ export default function GameContainer(props) {
           gameGoals={gameGoals} 
           segments={segments}
           stations={stations}
+          setCurrentPhase={props.setCurrentPhase}
           onGameEnd={(results) => {
             setGameResults(results);
-            props.setCurrentPhase('EXECUTION');
           }} 
         />
       );

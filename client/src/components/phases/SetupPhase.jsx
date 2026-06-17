@@ -9,20 +9,29 @@ export function SetupPhase({ onPlay }) {
 
   return (
     <div className="p-4 w-100 flex-grow-1 d-flex flex-column" style={{ minWidth: "360px" }}>
-        <div className="position-relative d-flex align-items-center justify-content-center mb-5 w-100">
-          <Button 
-          variant="outline-secondary" 
-          className="position-absolute start-0 px-3 py-2 rounded-pill fw-bold"
-          onClick={() => navigate('/')}
-        >
-          <FaArrowLeft className="me-2" /> Back to Home
-        </Button>
+      <div className="p-4 w-100 flex-grow-1 d-flex flex-column" style={{ minWidth: "360px" }}>
+        <Row className="align-items-center mb-5 w-100 gx-0 gy-3 text-center text-sm-start">
+          <Col xs={12} sm={3} className="d-flex justify-content-center justify-content-sm-start">
+            <Button 
+              variant="outline-secondary" 
+              className="px-3 py-2 rounded-pill fw-bold"
+              onClick={() => navigate('/')}
+            >
+              <FaArrowLeft className="me-2" /> Back to Home
+            </Button>
+          </Col>
 
-        <h2 className="text-primary fw-bold m-0 text-center fs-3">
-          <FaMapMarkedAlt className="me-2" /> Phase 0: Mission Setup
-        </h2>
+          <Col xs={12} sm={6} className="text-center">
+            <h2 className="text-primary fw-bold m-0 fs-3 d-inline-flex align-items-center justify-content-center">
+              <FaMapMarkedAlt className="me-2" /> Phase 0: Mission Setup
+            </h2>
+          </Col>
+
+          <Col sm={3} className="d-none d-sm-block">
+          </Col>
+        </Row>
       </div>
-      
+
       <Row className="flex-grow-1 g-4">
         <Col md={4} className="d-flex flex-column justify-content-between">
           <Card className="shadow-sm p-4 rounded-4 border-0 bg-white h-100 d-flex flex-column justify-content-between">

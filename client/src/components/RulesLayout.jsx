@@ -1,7 +1,7 @@
 import { Col, Container, Row, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-export function RulesLayout(props) {
+export function Rules(props) {
   const navigate = useNavigate();
   return (
     <Container className="py-4 py-md-5">
