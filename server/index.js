@@ -102,10 +102,11 @@ app.post("/api/sessions", function (req, res, next) {
 
 // GET /api/sessions/current
 // This route checks whether the user is logged in or not.
-app.get("/api/sessions/current", (req, res) => {
+app.get('/api/sessions/current', (req, res) => {
   if (req.isAuthenticated()) {
-    res.status(200).json(req.user);
-  } else res.status(401).json({ error: "Not authenticated" });
+    return res.status(200).json(req.user); 
+  }
+  return res.status(200).json({ loggedIn: false }); 
 });
 
 // DELETE /api/session/current
@@ -182,6 +183,7 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
   const validation =  validateRoute(route, game, MAIN_GRAPH);
 
   if(validation.error){
+    linesDao.completeGame(gameId, 0);
     return res.json({
       error: validation.error
     })
