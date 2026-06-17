@@ -10,8 +10,9 @@ import API from "./API.js";
 import Header from './components/Header.jsx';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { LoginForm } from './components/Auth.jsx';
-import { RulesLayout } from './components/RulesLayout.jsx';
+import { Rules } from './components/RulesLayout.jsx';
 import { Rank } from './components/Rank.jsx';
+import { NotFound } from './components/NotFound.jsx';
 import GameContainer from './components/phases/GameContainer.jsx';
 
 
@@ -23,17 +24,25 @@ function App() {
   const [currentPhase, setCurrentPhase] = useState('SETUP');
 
   useEffect(() => {
-    API.getUserInfo()
-      .then(user => {
-        setLoggedIn(true);
-        setUser(user);
-        setLoading(false); 
-      }).catch(e => {
-        setLoggedIn(false); 
+  API.getUserInfo()
+    .then(response => {
+      if (response.loggedIn === false) {
+        setLoggedIn(false);
         setUser(null);
-        setLoading(false); 
-      }); 
-  }, [loggedIn]);
+      } else {
+        setLoggedIn(true);
+        setUser(response);
+      }
+    })
+    .catch(err => {
+      console.error("Errore di rete reale:", err);
+      setLoggedIn(false);
+      setUser(null);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+}, []);
 
   /**
    * This function handles the logout process.
@@ -60,7 +69,7 @@ function App() {
     );
   }
   return (
-      <div className="min-vh-100 d-flex flex-column" style={{ minWidth: "360px" }}>
+      <div className="min-vh-100 d-flex flex-column" style={{ minWidth: "400px" }}>
         <Header logout={handleLogout} user={user} loggedIn={loggedIn} currentPhase={currentPhase} setCurrentPhase={setCurrentPhase}/>
         
         <Container fluid className="flex-grow-1 d-flex flex-column">
@@ -70,7 +79,7 @@ function App() {
                 : <LoginForm login={handleLogin} />
             } />
             <Route path="/" element={
-                <RulesLayout loggedIn={loggedIn}/>
+                <Rules loggedIn={loggedIn}/>
             } />
             <Route path="/rank" element={ 
                 !loggedIn ? <Navigate replace to='/login'/>
@@ -80,6 +89,7 @@ function App() {
                 !loggedIn ? <Navigate replace to='/login'/>
                 : <GameContainer loggedIn={loggedIn} setCurrentPhase={setCurrentPhase} currentPhase={currentPhase}/>
             } />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Container>
       </div>
