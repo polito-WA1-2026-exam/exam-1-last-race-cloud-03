@@ -82,8 +82,8 @@ export async function generateRouteEvents(route, allEvents, graph) {
 
     const stepData = {
       step: i + 1,
-      from_station: graph[fromStation].name,
-      to_station: graph[toStation].name,
+      from_station: fromStation,
+      to_station: toStation,
       event_id: randomEvent.id,
       event_description: randomEvent.description,
       coin_effect: randomEvent.coins,

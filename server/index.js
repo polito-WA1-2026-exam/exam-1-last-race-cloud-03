@@ -222,15 +222,10 @@ app.get("/api/segments", isLoggedIn, async (req, res) => {
             if (!visti.has(coppiaChiave)) {
                 visti.add(coppiaChiave); 
 
-                const neighbor = MAIN_GRAPH[neighborId];
-
                 segments.push({
                     id: idContatore++, 
-                    name: `Tratta (${station.name} - ${neighbor ? neighbor.name : 'Stazione ' + neighborId})`,
-                    from: station.name,
-                    to: neighbor ? neighbor.name : `Stazione ${neighborId}`,
-                    fromId: station.id,
-                    toId: neighborId
+                    from: station.id,
+                    to: neighborId
                 });
             }
         });

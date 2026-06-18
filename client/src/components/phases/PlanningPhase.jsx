@@ -11,8 +11,8 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
 
   const handleFinishGame = async () => {
     const formattedRoute = selectedRoute.map(step => ({
-      from: Number(step.fromId),
-      to: Number(step.toId)
+      from: Number(step.from),
+      to: Number(step.to)
     }));
     const gameId = gameGoals?.gameId; 
 
@@ -128,7 +128,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
                           </Badge>
                           
                           <div className="min-width-0 flex-grow-1 text-wrap fw-bold text-dark lh-sm" style={{ fontSize: "0.8rem" }}>
-                            {step.from} - {step.to}
+                            {stations.find(s => s.id === step.from)?.name} - {stations.find(s => s.id === step.to)?.name}
                           </div>
                         </div>
                         
@@ -176,7 +176,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
                       onClick={() => handleSelectSegment(seg)}
                     >
                       <div className="fw-bold text-wrap lh-sm w-100 text-dark" style={{ fontSize: "0.8rem", letterSpacing: "-0.1px" }}>
-                        {seg.from} - {seg.to}
+                        {stations.find(s => s.id === seg.from)?.name} - {stations.find(s => s.id === seg.to)?.name}
                       </div>
                     </Button>
                   </Col>

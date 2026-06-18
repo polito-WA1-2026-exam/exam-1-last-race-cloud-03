@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, Button, Row, Col, ProgressBar, Badge } from 'react-bootstrap';
 import { FaCheckCircle, FaFlagCheckered, FaCoins, FaExclamationTriangle, FaArrowRight, FaArrowLeft, FaTimesCircle } from 'react-icons/fa';
 
-export function ExecutionPhase({ gameResults, onGameEnd }) {
+export function ExecutionPhase({ gameResults, onGameEnd, stations }) {
   const steps = gameResults?.steps || [];
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
@@ -75,7 +75,8 @@ if (steps.length === 0) {
       <ExecutionCard 
         currentStep={currentStep} 
         currentStepIndex={currentStepIndex} 
-        steps={steps} 
+        steps={steps}
+        stations={stations}
       />
 
       <Row className="w-100 justify-content-center" style={{ maxWidth: "600px" }}>
@@ -120,7 +121,7 @@ if (steps.length === 0) {
   );
 }
 
-function ExecutionCard({ currentStep, currentStepIndex, steps }) {
+function ExecutionCard({ currentStep, currentStepIndex, steps, stations }) {
   const isLastStep = currentStepIndex === steps.length - 1;
 
   const getCoinEffectColor = (effect) => {
@@ -143,9 +144,9 @@ function ExecutionCard({ currentStep, currentStepIndex, steps }) {
         </div>
 
         <div className="bg-light rounded-3 p-3 mb-4 d-flex align-items-center justify-content-center gap-3 shadow-sm">
-          <span className="fw-bold text-dark text-truncate fs-5">{currentStep.from_station}</span>
+          <span className="fw-bold text-dark text-truncate fs-5">{stations.find(s => s.id === currentStep.from_station)?.name}</span>
           <FaArrowRight className="text-primary fs-5 flex-shrink-0" />
-          <span className="fw-bold text-dark text-truncate fs-5">{currentStep.to_station}</span>
+          <span className="fw-bold text-dark text-truncate fs-5">{stations.find(s => s.id === currentStep.to_station)?.name}</span>
         </div>
 
         <div className="text-center my-2 flex-grow-1">
