@@ -11,7 +11,7 @@ export default function LinesDao() {
         });
     }
 
-    function getConnections() {
+    this.getConnections = () => {
         return new Promise((resolve, reject) => {
         db.all("SELECT station1, station2 FROM connection;", (err, rows) => {
             if (err) return reject(err);
@@ -19,50 +19,6 @@ export default function LinesDao() {
         });
         });
     }
-
-    this.buildGraph = async function () {
-        const graph = {};
-        const stations = await this.getStations();
-        stations.forEach((s) => {
-            graph[s.id] = { id: s.id, name: s.name, neighbors: [] };
-        });
-
-        const connections = await getConnections();
-        connections.forEach((c) => {
-            const a = c.station1;
-            const b = c.station2;
-            if (!graph[a] || !graph[b]) return;
-            graph[a].neighbors.push(graph[b].id);
-            graph[b].neighbors.push(graph[a].id);
-        });
-
-        return graph;
-    };
-
-    this.getDistancesFromStart = function (startStationId, graph) {
-        const distances = {};
-        const queue = [];
-
-        distances[startStationId] = 0;
-        queue.push(startStationId);
-
-        while (queue.length > 0) {
-        const currentId = queue.shift();
-        const currentStation = graph[currentId];
-        if (!currentStation) continue;
-
-        const currentDistance = distances[currentId];
-
-        for (const neighbor of currentStation.neighbors) {
-            const nid = neighbor;
-            if (distances[nid] === undefined) {
-            distances[nid] = currentDistance + 1;
-            queue.push(nid);
-            }
-        }
-        }
-        return distances;
-    };
 
     this.addGame = (userId, startStationId, destinationStationId) => {
         return new Promise((resolve, reject) => {

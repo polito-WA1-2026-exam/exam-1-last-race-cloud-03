@@ -1,3 +1,7 @@
+import LinesDao from "./dao-lines.js";
+
+const linesDao = new LinesDao();
+
 export function validateRoute(routeSegments, game, networkGraph) {
   if (!routeSegments || routeSegments.length === 0) {
     return { error: "Empty route", validRoute: null };
@@ -95,3 +99,41 @@ export async function generateRouteEvents(route, allEvents, graph) {
 
   return {totCoins: currentCoins, steps: stepsExecuted};
 }
+
+export async function buildGraph(){
+  const graph = {};
+  const stations = await linesDao.getStations();
+  stations.forEach((s) => {
+    graph[s.id] = { id: s.id, name: s.name, neighbors: [] };
+  });
+  const connections = await linesDao.getConnections();
+  connections.forEach((c) => {
+    const a = c.station1;
+    const b = c.station2;
+    if (!graph[a] || !graph[b]) return;
+    graph[a].neighbors.push(graph[b].id);
+    graph[b].neighbors.push(graph[a].id);
+  });
+  return graph;
+};
+
+export function getDistancesFromStart(startStationId, graph) {
+  const distances = {};
+  const queue = [];
+  distances[startStationId] = 0;
+  queue.push(startStationId);
+  while (queue.length > 0) {
+    const currentId = queue.shift();
+    const currentStation = graph[currentId];
+    if (!currentStation) continue;
+    const currentDistance = distances[currentId];
+    for (const neighbor of currentStation.neighbors) {
+      const nid = neighbor;
+      if (distances[nid] === undefined) {
+        distances[nid] = currentDistance + 1;
+        queue.push(nid);
+      }
+    }
+  }
+  return distances;
+};

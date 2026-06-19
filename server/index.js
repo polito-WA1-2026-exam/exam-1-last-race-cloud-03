@@ -10,7 +10,7 @@ import LocalStrategy from "passport-local";
 import UserDao from "./dao-users.js";
 import LinesDao from "./dao-lines.js";
 
-import {validateRoute,  generateRouteEvents} from "./utils.js";
+import {validateRoute,  generateRouteEvents, buildGraph, getDistancesFromStart} from "./utils.js";
 
 const userDao = new UserDao();
 const linesDao = new LinesDao();
@@ -33,7 +33,7 @@ let MAIN_GRAPH = {};
 async function initializeServer() {
   console.log("loading metro graph from DB...");
 
-  MAIN_GRAPH = await linesDao.buildGraph();
+  MAIN_GRAPH = await buildGraph();
   console.log("Metro network loaded successfully");
 }
 
@@ -130,7 +130,7 @@ app.post("/api/game/start", isLoggedIn, async (req, res) => {
   while (validDestinations.length === 0) {
     startStationId =
       allStationIds[Math.floor(Math.random() * allStationIds.length)];
-    const distances = linesDao.getDistancesFromStart(
+    const distances = getDistancesFromStart(
       startStationId,
       MAIN_GRAPH,
     );
@@ -201,11 +201,13 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
 });
 
 app.get("/api/stations", isLoggedIn, async (req, res) => {
-  const stations = await linesDao.getStations();
-
-  res.json(
-    stations
-  );
+  try {
+    const stations = await linesDao.getStations();
+    res.json(stations);
+  } catch (err) {
+    console.error("Errore nel recupero stazioni:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.get("/api/segments", isLoggedIn, async (req, res) => {
