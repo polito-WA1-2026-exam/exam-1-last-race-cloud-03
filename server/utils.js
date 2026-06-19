@@ -37,8 +37,8 @@ export function validateRoute(routeSegments, game, networkGraph) {
       }
     }
 
-    const existsStandard = networkGraph[sFrom]?.neighbors.includes(sTo);
-    const existsInverse = networkGraph[sTo]?.neighbors.includes(sFrom);
+    const existsStandard = networkGraph[sFrom]?.includes(sTo);
+    const existsInverse = networkGraph[sTo]?.includes(sFrom);
 
     if (!existsStandard && !existsInverse) {
       return { error: `Segment ${i + 1} (${sFrom} <-> ${sTo}) does not exist in the network map`, validRoute: null };
@@ -104,15 +104,15 @@ export async function buildGraph(){
   const graph = {};
   const stations = await linesDao.getStations();
   stations.forEach((s) => {
-    graph[s.id] = { id: s.id, name: s.name, neighbors: [] };
+    graph[s.id] = [];
   });
   const connections = await linesDao.getConnections();
   connections.forEach((c) => {
     const a = c.station1;
     const b = c.station2;
     if (!graph[a] || !graph[b]) return;
-    graph[a].neighbors.push(graph[b].id);
-    graph[b].neighbors.push(graph[a].id);
+    graph[a].push(b);
+    graph[b].push(a);
   });
   return graph;
 };
@@ -127,7 +127,7 @@ export function getDistancesFromStart(startStationId, graph) {
     const currentStation = graph[currentId];
     if (!currentStation) continue;
     const currentDistance = distances[currentId];
-    for (const neighbor of currentStation.neighbors) {
+    for (const neighbor of currentStation) {
       const nid = neighbor;
       if (distances[nid] === undefined) {
         distances[nid] = currentDistance + 1;

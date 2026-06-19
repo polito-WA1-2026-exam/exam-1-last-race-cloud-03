@@ -121,83 +121,74 @@ app.delete("/api/sessions/current", (req, res) => {
 // 1. start the game
 // POST /api/game/start
 app.post("/api/game/start", isLoggedIn, async (req, res) => {
-  const userId = req.user.id;
+  	try {
+    	const userId = req.user.id;
+    	const allStationIds = Object.keys(MAIN_GRAPH);
+    	let startStationId;
+    	let validDestinations = [];
 
-  const allStationIds = Object.keys(MAIN_GRAPH);
-  let startStationId;
-  let validDestinations = [];
 
-  while (validDestinations.length === 0) {
-    startStationId =
-      allStationIds[Math.floor(Math.random() * allStationIds.length)];
-    const distances = getDistancesFromStart(
-      startStationId,
-      MAIN_GRAPH,
-    );
-    validDestinations = Object.keys(distances).filter(
-      (id) => distances[id] >= 3,
-    );
-  }
+    	while (validDestinations.length === 0) {
+    	  startStationId = allStationIds[Math.floor(Math.random() * allStationIds.length)];
+    	  const distances = getDistancesFromStart(startStationId, MAIN_GRAPH);
+    	  validDestinations = Object.keys(distances).filter((id) => distances[id] >= 3);
+    	}
 
-  const destinationStationId =
-    validDestinations[Math.floor(Math.random() * validDestinations.length)];
+    	const destinationStationId = validDestinations[Math.floor(Math.random() * validDestinations.length)];
+    	const newGameId = await linesDao.addGame(userId, startStationId, destinationStationId);
 
-  const newGameId = await linesDao.addGame(
-    userId,
-    startStationId,
-    destinationStationId,
-  );
-
-  res.json({
-    gameId: newGameId,
-    startStationId: parseInt(startStationId),
-    destinationStationId: parseInt(destinationStationId),
-  });
+    	res.json({
+    		gameId: newGameId,
+    		startStationId: parseInt(startStationId, 10),
+    		destinationStationId: parseInt(destinationStationId, 10),
+    	});
+	} catch (err) {
+    	console.error("Error starting game:", err);
+    	res.status(500).json({ error: "Internal server error" });
+  	}
 });
 
 app.post("/api/game/end", isLoggedIn, async (req, res) => {
-  const userId = req.user.id;
+  try {
+    const userId = req.user.id;
+    const finishTime = dayjs();
+    const { gameId, route } = req.body || {};
 
-  const finishTime = dayjs();
-
-  const { gameId, route } = req.body || {};
-  if (!gameId)
-    return res.status(400).json({ error: "Missing gameId in request body" });
-  const game = await linesDao.getGame(parseInt(gameId, 10), userId);
-
-  if (!game || game.status !== "PLANNING") 
-    return res.status(404).json({ error: "Game invalid or not associated with current user" });
-
-  const startTime = dayjs(game.created_at);
-  const secondsElapsed = finishTime.diff(startTime, 'second');
-
-  if (secondsElapsed > 94) {
-    linesDao.invalidateGame(gameId);
+    if (!gameId) return res.status(400).json({ error: "Missing gameId in request body" });
     
-    return res.status(400).json({ 
-      error: "Timeout expired! You exceeded the 90 seconds limit.",
-      secondsElapsed: secondsElapsed
-    });
+    const game = await linesDao.getGame(parseInt(gameId, 10), userId);
+    if (!game || game.status !== "PLANNING") {
+      return res.status(404).json({ error: "Game invalid or not associated with current user" });
+    }
+
+    const startTime = dayjs(game.created_at);
+    const secondsElapsed = finishTime.diff(startTime, 'second');
+
+    if (secondsElapsed > 93) {
+      await linesDao.invalidateGame(gameId);
+      return res.status(400).json({ 
+        error: "Timeout expired! You exceeded the 90 seconds limit.",
+        secondsElapsed: secondsElapsed
+      });
+    }
+
+    const validation = validateRoute(route, game, MAIN_GRAPH);
+
+    if (validation.error) {
+      await linesDao.completeGame(gameId, 0);
+      return res.json({ error: validation.error });
+    } 
+
+    const finalRoute = validation.validRoute;
+    const allEvents = await linesDao.getEvents();
+    const response = await generateRouteEvents(finalRoute, allEvents, MAIN_GRAPH);
+
+    await linesDao.completeGame(gameId, response.totCoins);
+    res.json(response);
+  } catch (err) {
+    console.error("Error ending game:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  const validation =  validateRoute(route, game, MAIN_GRAPH);
-
-  if(validation.error){
-    linesDao.completeGame(gameId, 0);
-    return res.json({
-      error: validation.error
-    })
-  } 
-
-  const finalRoute = validation.validRoute;
-
-  const allEvents = await linesDao.getEvents();
-
-  const response = await generateRouteEvents(finalRoute, allEvents, MAIN_GRAPH);
-
-  linesDao.completeGame(gameId, response.totCoins);
-
-  res.json( response );
 });
 
 app.get("/api/stations", isLoggedIn, async (req, res) => {
@@ -205,7 +196,7 @@ app.get("/api/stations", isLoggedIn, async (req, res) => {
     const stations = await linesDao.getStations();
     res.json(stations);
   } catch (err) {
-    console.error("Errore nel recupero stazioni:", err);
+    console.error("Error during query stations:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -218,15 +209,15 @@ app.get("/api/segments", isLoggedIn, async (req, res) => {
   for (const stationId in MAIN_GRAPH) {
         const station = MAIN_GRAPH[stationId];
         
-        station.neighbors.forEach((neighborId) => {
-            const coppiaChiave = [station.id, neighborId].sort().join('-');
+        station.forEach((neighborId) => {
+            const coppiaChiave = [stationId, neighborId].sort().join('-');
 
             if (!visti.has(coppiaChiave)) {
                 visti.add(coppiaChiave); 
 
                 segments.push({
                     id: idContatore++, 
-                    from: station.id,
+                    from: parseInt(stationId),
                     to: neighborId
                 });
             }
@@ -237,11 +228,13 @@ app.get("/api/segments", isLoggedIn, async (req, res) => {
 });
 
 app.get("/api/rank", isLoggedIn, async (req, res) => {
-  const rank = await linesDao.getRank();
-
-  res.json({
-    rank,
-  });
+  try {
+    const rank = await linesDao.getRank();
+    res.json({rank});
+  } catch (err) {
+    console.error("Error during rank query:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // activate the server
