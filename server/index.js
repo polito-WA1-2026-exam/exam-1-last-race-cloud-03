@@ -33,7 +33,7 @@ let MAIN_GRAPH = {};
 async function initializeServer() {
   console.log("loading metro graph from DB...");
 
-  MAIN_GRAPH = await buildGraph();
+
   console.log("Metro network loaded successfully");
 }
 
@@ -122,15 +122,16 @@ app.delete("/api/sessions/current", (req, res) => {
 // POST /api/game/start
 app.post("/api/game/start", isLoggedIn, async (req, res) => {
   	try {
+      const graph = await buildGraph();
     	const userId = req.user.id;
-    	const allStationIds = Object.keys(MAIN_GRAPH);
+    	const allStationIds = Object.keys(graph);
     	let startStationId;
     	let validDestinations = [];
 
 
     	while (validDestinations.length === 0) {
     	  startStationId = allStationIds[Math.floor(Math.random() * allStationIds.length)];
-    	  const distances = getDistancesFromStart(startStationId, MAIN_GRAPH);
+    	  const distances = getDistancesFromStart(startStationId, graph);
     	  validDestinations = Object.keys(distances).filter((id) => distances[id] >= 3);
     	}
 
@@ -150,6 +151,7 @@ app.post("/api/game/start", isLoggedIn, async (req, res) => {
 
 app.post("/api/game/end", isLoggedIn, async (req, res) => {
   try {
+    const graph = await buildGraph();
     const userId = req.user.id;
     const finishTime = dayjs();
     const { gameId, route } = req.body || {};
@@ -172,7 +174,7 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
       });
     }
 
-    const validation = validateRoute(route, game, MAIN_GRAPH);
+    const validation = validateRoute(route, game, graph);
 
     if (validation.error) {
       await linesDao.completeGame(gameId, 0);
@@ -181,7 +183,7 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
 
     const finalRoute = validation.validRoute;
     const allEvents = await linesDao.getEvents();
-    const response = await generateRouteEvents(finalRoute, allEvents, MAIN_GRAPH);
+    const response = await generateRouteEvents(finalRoute, allEvents);
 
     await linesDao.completeGame(gameId, response.totCoins);
     res.json(response);
@@ -202,29 +204,17 @@ app.get("/api/stations", isLoggedIn, async (req, res) => {
 });
 
 app.get("/api/segments", isLoggedIn, async (req, res) => {
-  let segments = [];
-  const visti = new Set();
-  let idContatore = 1;
-
-  for (const stationId in MAIN_GRAPH) {
-        const station = MAIN_GRAPH[stationId];
-        
-        station.forEach((neighborId) => {
-            const coppiaChiave = [stationId, neighborId].sort().join('-');
-
-            if (!visti.has(coppiaChiave)) {
-                visti.add(coppiaChiave); 
-
-                segments.push({
-                    id: idContatore++, 
-                    from: parseInt(stationId),
-                    to: neighborId
-                });
-            }
-        });
-    }
-
+  try {
+    let segments = await linesDao.getConnections();
+    segments = segments.map((segment, index) => ({
+      id: index + 1,
+      ...segment     
+    }));
     res.json(segments)
+  } catch (err) {
+    console.error("Error during query segments:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.get("/api/rank", isLoggedIn, async (req, res) => {

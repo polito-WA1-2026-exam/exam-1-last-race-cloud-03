@@ -9,6 +9,8 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
   const [timeLeft, setTimeLeft] = useState(90);
   const [selectedRoute, setSelectedRoute] = useState([]); 
 
+  console.log(segments)
+
   const handleFinishGame = async () => {
     const formattedRoute = selectedRoute.map(step => ({
       from: Number(step.from),
@@ -128,7 +130,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
                           </Badge>
                           
                           <div className="min-width-0 flex-grow-1 text-wrap fw-bold text-dark lh-sm" style={{ fontSize: "0.8rem" }}>
-                            {stations.find(s => s.id === step.from)?.name} - {stations.find(s => s.id === step.to)?.name}
+                            {stations.find(s => s.id === step.station1)?.name} - {stations.find(s => s.id === step.station2)?.name}
                           </div>
                         </div>
                         
@@ -176,7 +178,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
                       onClick={() => handleSelectSegment(seg)}
                     >
                       <div className="fw-bold text-wrap lh-sm w-100 text-dark" style={{ fontSize: "0.8rem", letterSpacing: "-0.1px" }}>
-                        {stations.find(s => s.id === seg.from)?.name} - {stations.find(s => s.id === seg.to)?.name}
+                        {stations.find(s => s.id === seg.station1)?.name} - {stations.find(s => s.id === seg.station2)?.name}
                       </div>
                     </Button>
                   </Col>

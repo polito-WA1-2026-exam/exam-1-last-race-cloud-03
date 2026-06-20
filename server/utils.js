@@ -67,7 +67,7 @@ export function validateRoute(routeSegments, game, networkGraph) {
   return { error: null, validRoute: orderedRoute };
 }
 
-export async function generateRouteEvents(route, allEvents, graph) {
+export async function generateRouteEvents(route, allEvents) {
   let currentCoins = 20;
   const stepsExecuted = [];
 
