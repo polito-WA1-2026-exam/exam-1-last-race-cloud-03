@@ -15,15 +15,11 @@ function Header(props) {
       e.preventDefault();
       setShowConfirmModal(true);
     }
-    else {
-      props.setCurrentPhase('SETUP');
-    }
   };
 
   const handleConfirmExit = () => {
     setShowConfirmModal(false);
     navigate("/");
-    props.setCurrentPhase('SETUP');
   };
 
   return (
@@ -72,7 +68,7 @@ function Header(props) {
       >
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="text-danger fw-bold fs-5">
-            <i className="bi bi-exclamation-triangle-fill me-2"></i> Abbandonare la partita?
+            <i className="bi bi-exclamation-triangle-fill me-2"></i> Quit the game?
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
