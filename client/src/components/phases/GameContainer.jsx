@@ -70,7 +70,7 @@ export default function GameContainer(props) {
   if (loading)
     return (
       <div className="text-center mt-5">
-        Generating metro transit route... 🚇
+        Generating metro transit route...
       </div>
     );
 

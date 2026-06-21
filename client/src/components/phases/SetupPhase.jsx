@@ -57,7 +57,7 @@ export function SetupPhase({ onPlay }) {
 
         <Col md={8}>
           <Card className="shadow-sm p-3 rounded-4 border-0 h-100 d-flex flex-column">
-            <h5 className="text-muted mb-3">🚊 Subway Network Grid</h5>
+            <h5 className="text-muted mb-3"> Subway Network Grid</h5>
             <div className="flex-grow-1 d-flex align-items-center justify-content-center border border-secondary border-dashed rounded-3 p-3 bg-light">
               <Image src={MetroMapSvg} rounded fluid alt="Metro Map" />                
             </div>
