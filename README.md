@@ -26,9 +26,11 @@ Game api:
 - POST `/api/game/start`
   - no body needed but the user must be logged in
   - response with gameId inserted in db, start and finish station id
+  - error 500, internal server error
 - POST `/api/game/end`
   - body contains the gameId to validate, and an array with segment of the own route, each segment has 2 id of the stations
   - response with a specific error(e.g. Empty route) or if the route is valide with totCoins collected in that game and an array with segment ordered and event encountered
+  - error 500, internal server error(eg DB connection)
 
   ``` json
     "0": {
@@ -60,7 +62,7 @@ Game api:
 ## Main React Components
 
 - `Header` (in `Headr.jsx`):
-  Displayed on all pages. It contains the game title (which redirects to the home page) and an authentication button: either a Login button if no session exists, or a Logout button if the user is logged in.
+  Displayed on all pages. It contains the game title (which redirects to the home page) and an authentication button: either a Login button if no session exists, or a Logout button if the user is logged in. If the player is in the game it ask a confirmation.
 
 - `LoginButton`/`LogoutButton` (in `Auth.jsx`):
   UI components rendered inside the Header to handle session states.

@@ -2,6 +2,9 @@ import LinesDao from "./dao-lines.js";
 
 const linesDao = new LinesDao();
 
+
+/// function that validate the route
+/// the route segment is an array of from, to object(not sorted)
 export function validateRoute(routeSegments, game, networkGraph) {
   if (!routeSegments || routeSegments.length === 0) {
     return { error: "Empty route", validRoute: null };
@@ -17,16 +20,16 @@ export function validateRoute(routeSegments, game, networkGraph) {
     const sFrom = Number(segment.from);
     const sTo = Number(segment.to);
 
-    let nextStation = null;
     let orderedFrom = null;
     let orderedTo = null;
 
+    // sort of the stations
     if (sFrom === currentStation) {
-      nextStation = sTo;
+      currentStation = sTo;
       orderedFrom = sFrom;
       orderedTo = sTo;
     } else if (sTo === currentStation) {
-      nextStation = sFrom;
+      currentStation = sFrom;
       orderedFrom = sTo;   
       orderedTo = sFrom;   
     } else {
@@ -37,6 +40,7 @@ export function validateRoute(routeSegments, game, networkGraph) {
       }
     }
 
+    //control if user add not real segments
     const existsStandard = networkGraph[sFrom]?.includes(sTo);
     const existsInverse = networkGraph[sTo]?.includes(sFrom);
 
@@ -44,6 +48,7 @@ export function validateRoute(routeSegments, game, networkGraph) {
       return { error: `Segment ${i + 1} (${sFrom} <-> ${sTo}) does not exist in the network map`, validRoute: null };
     }
 
+    //control if double use of segments
     const segmentKey = [String(sFrom), String(sTo)].sort().join("-");
     if (usedSegments.has(segmentKey)) {
       return { error: `Segment ${i + 1} (${sFrom} <-> ${sTo}) has already been used in this route!`, validRoute: null };
@@ -52,14 +57,12 @@ export function validateRoute(routeSegments, game, networkGraph) {
     usedSegments.add(segmentKey);
 
     orderedRoute.push({
-      ...segment,
       from: orderedFrom,
       to: orderedTo
     });
-
-    currentStation = nextStation;
   }
 
+  //control if last station is not the final destination
   if (currentStation !== Number(game.destinationStationId)) {
     return { error: "Doesn't reach final destination", validRoute: null };
   }
@@ -67,7 +70,7 @@ export function validateRoute(routeSegments, game, networkGraph) {
   return { error: null, validRoute: orderedRoute };
 }
 
-export async function generateRouteEvents(route, allEvents) {
+export function generateRouteEvents(route, allEvents) {
   let currentCoins = 20;
   const stepsExecuted = [];
 

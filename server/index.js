@@ -28,14 +28,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-let MAIN_GRAPH = {};
-
-async function initializeServer() {
-  console.log("loading metro graph from DB...");
-
-
-  console.log("Metro network loaded successfully");
-}
 
 ////PASSPORT THINGS
 passport.use(
@@ -57,9 +49,6 @@ passport.serializeUser(function (user, callback) {
 passport.deserializeUser(function (user, callback) {
   // this user is id + email + name
   return callback(null, user); // this will be available in req.user
-
-  // In this method, if needed, we can do extra check here (e.g., double check that the user is still in the database, etc.)
-  // e.g.: return userDao.getUserById(id).then(user => callback(null, user)).catch(err => callback(err, null));
 });
 
 app.use(
@@ -122,7 +111,7 @@ app.delete("/api/sessions/current", (req, res) => {
 // POST /api/game/start
 app.post("/api/game/start", isLoggedIn, async (req, res) => {
   	try {
-      const graph = await buildGraph();
+      const graph = await buildGraph();   //key id station, array of neighbors
     	const userId = req.user.id;
     	const allStationIds = Object.keys(graph);
     	let startStationId;
@@ -131,8 +120,8 @@ app.post("/api/game/start", isLoggedIn, async (req, res) => {
 
     	while (validDestinations.length === 0) {
     	  startStationId = allStationIds[Math.floor(Math.random() * allStationIds.length)];
-    	  const distances = getDistancesFromStart(startStationId, graph);
-    	  validDestinations = Object.keys(distances).filter((id) => distances[id] >= 3);
+    	  const distances = getDistancesFromStart(startStationId, graph);   //Breadth-First Search, array with distance from start
+    	  validDestinations = Object.keys(distances).filter((id) => distances[id] >= 3);  //remove station with distance < 3
     	}
 
     	const destinationStationId = validDestinations[Math.floor(Math.random() * validDestinations.length)];
@@ -149,6 +138,8 @@ app.post("/api/game/start", isLoggedIn, async (req, res) => {
   	}
 });
 
+// 2. start the game
+// POST /api/game/end
 app.post("/api/game/end", isLoggedIn, async (req, res) => {
   try {
     const graph = await buildGraph();
@@ -158,41 +149,43 @@ app.post("/api/game/end", isLoggedIn, async (req, res) => {
 
     if (!gameId) return res.status(400).json({ error: "Missing gameId in request body" });
     
-    const game = await linesDao.getGame(parseInt(gameId, 10), userId);
-    if (!game || game.status !== "PLANNING") {
+    const game = await linesDao.getGame(parseInt(gameId, 10), userId);   //null if game not present in db
+    if (!game || game.status !== "PLANNING") { //if not planning is completed
       return res.status(404).json({ error: "Game invalid or not associated with current user" });
     }
 
     const startTime = dayjs(game.created_at);
     const secondsElapsed = finishTime.diff(startTime, 'second');
 
-    if (secondsElapsed > 93) {
-      await linesDao.invalidateGame(gameId);
+    if (secondsElapsed > 93) {    // plus 3 seconds(excessive) for latency of network
+      await linesDao.invalidateGame(gameId);   //if excede invalidate the game
       return res.status(400).json({ 
         error: "Timeout expired! You exceeded the 90 seconds limit.",
         secondsElapsed: secondsElapsed
       });
     }
 
-    const validation = validateRoute(route, game, graph);
+    const validation = validateRoute(route, game, graph);   //sort the segments 
 
     if (validation.error) {
-      await linesDao.completeGame(gameId, 0);
-      return res.json({ error: validation.error });
+      await linesDao.completeGame(gameId, 0);  //update the game in the table with 0 coins
+      return res.json({ error: validation.error });   //return the error in the route
     } 
 
     const finalRoute = validation.validRoute;
-    const allEvents = await linesDao.getEvents();
-    const response = await generateRouteEvents(finalRoute, allEvents);
+    const allEvents = await linesDao.getEvents();   //get events from the db
+    const response = generateRouteEvents(finalRoute, allEvents);    //random pick of events
 
-    await linesDao.completeGame(gameId, response.totCoins);
-    res.json(response);
+    await linesDao.completeGame(gameId, response.totCoins); //update the game in the table
+    res.json(response);    //from, to, event, description, coin
   } catch (err) {
     console.error("Error ending game:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// 1. get station
+// GET /api/stations
 app.get("/api/stations", isLoggedIn, async (req, res) => {
   try {
     const stations = await linesDao.getStations();
@@ -203,6 +196,8 @@ app.get("/api/stations", isLoggedIn, async (req, res) => {
   }
 });
 
+// 1. get segments
+// GET /api/segments
 app.get("/api/segments", isLoggedIn, async (req, res) => {
   try {
     let segments = await linesDao.getConnections();
@@ -217,6 +212,8 @@ app.get("/api/segments", isLoggedIn, async (req, res) => {
   }
 });
 
+// 1. Get rank
+// GET /api/rank
 app.get("/api/rank", isLoggedIn, async (req, res) => {
   try {
     const rank = await linesDao.getRank();
@@ -229,6 +226,5 @@ app.get("/api/rank", isLoggedIn, async (req, res) => {
 
 // activate the server
 app.listen(port, async () => {
-  await initializeServer();
   console.log(`Server listening at http://localhost:${port}`);
 });

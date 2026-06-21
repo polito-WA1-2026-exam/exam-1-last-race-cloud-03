@@ -1,6 +1,8 @@
 import db from "./db.js";
 import dayjs from "dayjs";
 
+//// All the query with db, exluded that refears to users
+
 export default function LinesDao() {
     this.getStations = () => {
         return new Promise((resolve, reject) => {

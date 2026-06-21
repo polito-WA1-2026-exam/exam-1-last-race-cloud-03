@@ -9,12 +9,10 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
   const [timeLeft, setTimeLeft] = useState(90);
   const [selectedRoute, setSelectedRoute] = useState([]); 
 
-  console.log(segments)
-
   const handleFinishGame = async () => {
     const formattedRoute = selectedRoute.map(step => ({
-      from: Number(step.from),
-      to: Number(step.to)
+      from: Number(step.station1),
+      to: Number(step.station2)
     }));
     const gameId = gameGoals?.gameId; 
 
