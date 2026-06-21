@@ -5,9 +5,9 @@
 ## React Client Application Routes
 
 - Route `/`: landing page with rules, if the user is logged in button rank and play are displayed
-- Route /rank: Leaderboard showing the game records. It only displays the top 20 unique users (no duplicate users allowed).
-- Route /play: Core game page divided into 4 sequential stages: Setup, Planning, Execution (Route), and Ending. Each stage is displayed one at a time.
-- Route /login: Login page, include a form with username and password.
+- Route `/rank`: Leaderboard showing the game records. It only displays the top 20 unique users (no duplicate users allowed).
+- Route `/play`: Core game page divided into 4 sequential stages: Setup, Planning, Execution (Route), and Ending. Each stage is displayed one at a time.
+- Route `/login`: Login page, include a form with username and password.
 
 ## API Server
 
@@ -33,7 +33,7 @@ Game api:
   - response with a specific error(e.g. Empty route) or if the route is valide with totCoins collected in that game and an array with segment ordered and event encountered
   - error 500, internal server error(eg DB connection)
 
-  ``` json
+  ```json
     "0": {
       "step": 1,
       "from_station": "11",
@@ -42,8 +42,8 @@ Game api:
       "event_description": "Quiet journey",
       "coin_effect": 0,
       "updated_coins": 20
-    } 
-    ```
+    }
+  ```
 
 - GET `/api/stations`
   - the response is a list of the station present in the db, each entry is (id, name)
@@ -52,13 +52,13 @@ Game api:
 - GET `/api/rank`
   - response with ordered array with id, username and max coins correlated to each user.
 
-
 ## Database Tables
 
 - Table `station` - id, name
 - Table `connection` - line, station1, station2
 - Table `events` - id, name, coins
 - Table `users` - id, name, surname, mail, hash, salt
+- Table `game` - id, userid, startStationId, destinationStationId, status, created_at, coins
 
 ## Main React Components
 
@@ -102,12 +102,12 @@ Game api:
 
 ## Users Credentials
 
-| id  | name   | surname | email                    | username     | password    |
-| --- | ------ | ------- | ------------------------ | ------------ | ----------- |
-| 1   | Mario  | Rosasi  | mario\.rossi@test\.com   | mario88      | password123 |
-| 2   | Giulia | Bianchi | giulia\.bianchi@test\.it | giulietta\_b | secret2026  |
-| 3   | Luca   | Verdi   | l\.verdi@test\.com       | green\_luca  | metro_fan   |
-| 4   | Elena  | Ferrari | e\.ferrari@lastrace\.net | elena\_race  | speedy99    |
+| id  | name   | surname | email                    | username    | password    |
+| --- | ------ | ------- | ------------------------ | ----------- | ----------- |
+| 1   | Mario  | Rosasi  | mario\.rossi@test\.com   | mario88     | password123 |
+| 2   | Giulia | Bianchi | giulia\.bianchi@test\.it | giulietta_b | secret2026  |
+| 3   | Luca   | Verdi   | l\.verdi@test\.com       | green_luca  | metro_fan   |
+| 4   | Elena  | Ferrari | e\.ferrari@lastrace\.net | elena_race  | speedy99    |
 
 ## Use of AI Tools
 
