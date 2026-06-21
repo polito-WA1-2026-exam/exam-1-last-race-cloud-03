@@ -7,6 +7,7 @@
 - Route `/`: landing page with rules, if the user is logged in button rank and play are displayed
 - Route /rank: Leaderboard showing the game records. It only displays the top 20 unique users (no duplicate users allowed).
 - Route /play: Core game page divided into 4 sequential stages: Setup, Planning, Execution (Route), and Ending. Each stage is displayed one at a time.
+- Route /login: Login page, include a form with username and password.
 
 ## API Server
 
