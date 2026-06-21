@@ -136,7 +136,7 @@ function ExecutionCard({ currentStep, currentStepIndex, steps, stations }) {
         
         <div className="d-flex justify-content-between align-items-center mb-4">
           <Badge bg="secondary" className="px-3 py-2 fs-6 rounded-pill">
-            Step {currentStep.step} di {steps.length}
+            Step {currentStep.step} of {steps.length}
           </Badge>
           <div className="fs-1">
             {isLastStep ? <FaFlagCheckered className="text-danger" /> : <FaCheckCircle className="text-success" />}
