@@ -8,8 +8,12 @@ import API from '../../API';
 export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurrentPhase, onGameEnd }) {
   const [timeLeft, setTimeLeft] = useState(90);
   const [selectedRoute, setSelectedRoute] = useState([]); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFinishGame = async () => {
+    if (isSubmitting) return; 
+    setIsSubmitting(true);
+
     const formattedRoute = selectedRoute.map(step => ({
       from: Number(step.station1),
       to: Number(step.station2)
@@ -18,6 +22,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
 
     if (!gameId) {
       alert("Error: Game ID not found. Save failed.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -33,6 +38,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
     } catch (error) {
       console.error("Error ending the game:", error);
       alert("Unable to save the game on the server. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
@@ -150,7 +156,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
                 size="md"
                 className="w-100 py-2.5 fw-bold mt-2 text-uppercase shadow-sm rounded-pill small" 
                 onClick={handleFinishGame}
-                disabled={selectedRoute.length === 0}
+                disabled={selectedRoute.length === 0 || isSubmitting}
               >
                 <FaCheckCircle className="me-1.5" /> Complete Trip
               </Button>
