@@ -17,7 +17,7 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
     const gameId = gameGoals?.gameId; 
 
     if (!gameId) {
-      alert("Errore: ID partita non trovato. Impossibile salvare.");
+      alert("Error: Game ID not found. Save failed.");
       return;
     }
 
@@ -31,8 +31,8 @@ export function PlanningPhase({ gameGoals, segments = [], stations=[], setCurren
       }
       onGameEnd(data);
     } catch (error) {
-      console.error("Errore durante la chiusura della partita:", error);
-      alert("Impossibile salvare la partita sul server. Riprova.");
+      console.error("Error ending the game:", error);
+      alert("Unable to save the game on the server. Please try again.");
     }
   };
 
