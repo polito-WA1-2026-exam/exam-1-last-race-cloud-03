@@ -48,13 +48,13 @@ if (steps.length === 0) {
 
   const handleNext = () => {
     if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex(currentStepIndex + 1);
+      setCurrentStepIndex((sIndex) => (sIndex + 1));
     }
   };
 
   const handlePrev = () => {
     if (currentStepIndex > 0) {
-      setCurrentStepIndex(currentStepIndex - 1);
+      setCurrentStepIndex((sIndex) => (sIndex - 1));
     }
   };
 
